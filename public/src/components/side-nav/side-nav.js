@@ -1,7 +1,5 @@
 import { fetchTemplate, attachShadowRoot } from '../echo.js';
-
-const SIDE_NAV_WIDTH = 260;
-const BREAKPOINT = 768;
+import { addColorSchemeControls } from './color-scheme.js';
 
 /**
  * `SideNav` - custom element. Implements both native android like top bar and
@@ -9,6 +7,11 @@ const BREAKPOINT = 768;
  */
 
 class SideNav extends HTMLElement {
+
+    static WIDTH = 260;
+    static BREAKPOINT = 768;
+    static TOUCH_ANGLE_THRESHOLD = 45;
+
     isHidden;
     lastActionOnEventListeners;
     touchData = {};
@@ -27,6 +30,7 @@ class SideNav extends HTMLElement {
         this.handleTouchEnd = this.handleTouchEnd.bind(this);
 
         (async () => {
+
             const template = await fetchTemplate(
                 '/src/components/side-nav/side-nav.html'
             );
@@ -36,8 +40,10 @@ class SideNav extends HTMLElement {
             this.container = shadowRoot.querySelector('#side-nav');
             this.toggleButton = shadowRoot.querySelector('#toggle-button');
             this.backgroundDimmer = shadowRoot.querySelector('#background-dimmer');
+
+            addColorSchemeControls(shadowRoot.querySelector('#color-scheme-select'));
             
-            if (window.innerWidth >= BREAKPOINT)
+            if (self.innerWidth >= SideNav.BREAKPOINT)
                 this.isHidden = false;
             
             else
@@ -49,7 +55,7 @@ class SideNav extends HTMLElement {
             this.backgroundDimmer.addEventListener('click', this.toggle);
 
             this.manageEventListeners('add');
-            window.addEventListener('resize', this.handleResize);
+            self.addEventListener('resize', this.handleResize);
         })();
     }
 
@@ -60,6 +66,7 @@ class SideNav extends HTMLElement {
      */
 
     manageEventListeners(action) {
+
         const method = `${action}EventListener`;
 
         document[method]('keyup', this.handleKeyUp);
@@ -89,6 +96,7 @@ class SideNav extends HTMLElement {
      */
 
     getTouchDirection() {
+
         if (this.touchData.startX > this.touchData.currentX)
             return -1;
 
@@ -96,6 +104,10 @@ class SideNav extends HTMLElement {
             return 1;
 
         return 0;
+    }
+
+    getTouchAngle() {
+
     }
 
     /**
@@ -107,7 +119,10 @@ class SideNav extends HTMLElement {
      */
 
     getTouchDelta() {
-        return this.touchData.currentX - this.touchData.startX;
+        return [
+            this.touchData.currentX - this.touchData.startX,
+            this.touchData.currentY - this.touchData.startY
+        ];
     }
 
     /**
@@ -128,9 +143,10 @@ class SideNav extends HTMLElement {
      */
 
     offsetContainerTranslateX(offset) {
-        let translate = offset + (this.isHidden ? SIDE_NAV_WIDTH * -1 : 0);
 
-        if (Math.abs(offset) > SIDE_NAV_WIDTH)
+        let translate = offset + (this.isHidden ? SideNav.WIDTH * -1 : 0);
+
+        if (Math.abs(offset) > SideNav.WIDTH)
             return;
 
         this.container.style.transform = `translateX(${translate}px)`;
@@ -152,8 +168,10 @@ class SideNav extends HTMLElement {
      */
 
     toggle() {
+
         this.container.removeAttribute('style');
         this.isHidden = !this.isHidden;
+
         this.setContainerAriaHiddenAttribute();
     }
 
@@ -163,6 +181,7 @@ class SideNav extends HTMLElement {
      */
 
     handleKeyUp({ key }) {
+
         if (!this.isHidden && key === 'Escape')
             this.toggle();
     }
@@ -173,17 +192,20 @@ class SideNav extends HTMLElement {
      */
 
     handleResize() {
-        if (window.innerWidth >= BREAKPOINT &&
+
+        if (self.innerWidth >= SideNav.BREAKPOINT &&
             this.lastActionOnEventListeners === 'add'
             ) {
+
             this.isHidden = true;
             this.toggle();
             this.manageEventListeners('remove');
         }
 
-        if (window.innerWidth < BREAKPOINT &&
+        if (self.innerWidth < SideNav.BREAKPOINT &&
             this.lastActionOnEventListeners === 'remove'
             ) {
+
             this.isHidden = false;
             this.toggle();
             this.manageEventListeners('add');
@@ -197,7 +219,10 @@ class SideNav extends HTMLElement {
      */
 
     handleTouchStart({ touches }) {
+
         this.touchData.startX = touches[0].clientX;
+        this.touchData.startY = touches[0].clientY;
+
         this.setContainerAnimating(true);
     }
 
@@ -209,14 +234,17 @@ class SideNav extends HTMLElement {
      */
 
     handleTouchMove({ touches }) {
+
         this.touchData.currentX = touches[0].clientX;
+        this.touchData.currentY = touches[0].clientY;
+
         const touchDirection = this.getTouchDirection();
         
         if ((!this.isHidden && touchDirection >= 0) ||
             (this.isHidden && touchDirection < 0))
             return;
 
-        this.offsetContainerTranslateX(this.getTouchDelta());
+        this.offsetContainerTranslateX(this.getTouchDelta()[0]);
     }
 
     /**
@@ -225,14 +253,18 @@ class SideNav extends HTMLElement {
      */
 
     handleTouchEnd() {
+
         this.setContainerAnimating(false);
-    
-        if (Math.abs(this.getTouchDelta()) > SIDE_NAV_WIDTH / 2) {
-            this.toggle();
+        const touchDelta = this.getTouchDelta()[0];
+
+        if ((!this.isHidden && touchDelta > (SideNav.WIDTH * -1) / 2) ||
+            (this.isHidden && touchDelta < SideNav.WIDTH / 2)) {
+
+            this.setContainerTranslateX(this.isHidden ? 0 - SideNav.WIDTH : 0);
             return;
         }
         
-        this.setContainerTranslateX(this.isHidden ? 0 - SIDE_NAV_WIDTH : 0);
+        this.toggle();
     }
 }
 
