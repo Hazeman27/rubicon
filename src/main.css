@@ -1,0 +1,33 @@
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
+:root {
+    --color-dark: #1e1f29;
+    --color-light: #f0f0f1;
+
+    --transition-duration-fast: 125ms;
+    --transition-duration-medium: 250ms;
+    --transition-duration-long: 500ms;
+
+    font-size: 16px;
+}
+
+body {
+    font-family: sans-serif;
+    margin: 0;
+}
+
+a {
+    color: inherit;
+    text-decoration: none;
+    transition: filter ease-in-out var(--transition-duration-fast);
+}
+
+a:hover {
+    filter: brightness(78%);
+}
+
+button {
+    cursor: pointer;
+}

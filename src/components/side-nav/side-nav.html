@@ -1,0 +1,34 @@
+<template>
+    <link rel="stylesheet" href="/src/components/side-nav/side-nav.css">
+    <nav id="top-bar" aria-label="top bar">
+        <button id="toggle-button" aria-label="main-navigation-toggle">
+            <svg width="24" height="21" viewBox="0 0 24 21">
+                <rect x="0" y="0" width="24" height="3" />
+                <rect x="0" y="9" width="24" height="3" />
+                <rect x="0" y="18" width="24" height="3" />
+            </svg>
+        </button>
+        <h2 id="top-bar-title">
+            <slot name="title">Rubicon</slot>
+        </h2>
+    </nav>
+    <aside id="side-nav" aria-label="main-navigation">
+        <ul id="side-nav-content">
+            <slot name="content">
+                <li><a href="#">Link 1</a></li>
+                <li><a href="#">Link 2</a></li>
+                <li><a href="#">Link 3</a></li>
+            </slot>
+        </ul>
+        <details id="side-nav-details">
+            <summary>
+                Rubic's web platform
+            </summary>
+            <a href="mailto:tremul27@gmail.com">tremul27@gmail.com</a>
+            <a href="tel:+421950265147">+421 950 265 147</a>
+            <address>B1 32/2, Staré Grunty 53, Bratislava, Slovakia</address>
+            <p>Nizomiddin Toshpulatov © 2020</p>
+        </details>
+    </aside>
+    <div id="background-dimmer"></div>
+</template>
