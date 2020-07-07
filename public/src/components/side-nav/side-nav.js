@@ -150,6 +150,10 @@ class SideNav extends HTMLElement {
 
 	/** @param {HTMLElement} element */
 	toggleButtonPressed(element) {
+
+		if (!element)
+			return false;
+
 		return element.closest('#toggle-button') !== null;
 	}
 
