@@ -4,19 +4,19 @@
 
 :root {
     --top-bar-height: 60px;
-    --side-nav-width: 260px;
+    --side-nav-width: 300px;
 
-    --color-dark: #242323;
-    --color-darker: #1b1a1a;
-    --color-light: #f0f0f1;
+    --color-dark: #232324;
+    --color-darker: #1b1a1b;
+    --color-light: #eeeeee;
 
-    --side-nav-background: var(--color-dark);
+    --side-nav-background: var(--color-light);
 
     --border-radius: 6px;
 
-    --transition-duration-fast: 125ms;
-    --transition-duration-medium: 250ms;
-    --transition-duration-long: 500ms;
+    --transition-duration-fast: 80ms;
+    --transition-duration-medium: 200ms;
+    --transition-duration-long: 350ms;
 
     font-size: 16px;
 }
@@ -34,6 +34,7 @@ body[data-theme="dark"] {
 }
 
 a {
+    font-weight: bold;
     color: inherit;
     text-decoration: none;
     transition: filter ease-in-out var(--transition-duration-fast);
@@ -64,6 +65,10 @@ main {
 }
 
 @media only screen and (min-width: 768px) {
+    :root {
+        --side-nav-width: 260px;
+    }
+
     main {
         margin-left: var(--side-nav-width);
     }

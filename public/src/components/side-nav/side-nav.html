@@ -1,5 +1,4 @@
 <template>
-    <link rel="stylesheet" href="/src/components/side-nav/side-nav.css">
     <nav id="top-bar" aria-label="top bar">
         <button id="toggle-button" aria-label="main-navigation-toggle">
             <svg width="24" height="21" viewBox="0 0 24 21">
@@ -12,7 +11,7 @@
             <slot name="title">Rubicon</slot>
         </h2>
     </nav>
-    <aside id="side-nav" aria-label="main-navigation">
+    <aside id="side-nav" aria-label="main-navigation" aria-hidden="true">
         <ul id="side-nav-content">
             <slot name="content">
                 <li><a href="#">Link 1</a></li>
@@ -20,23 +19,161 @@
                 <li><a href="#">Link 3</a></li>
             </slot>
         </ul>
-        <details id="side-nav-details">
-            <summary>
-                Rubic's web platform
-            </summary>
+        <section>
+            <h2>Rubic's web platform</h2>
             <section id="color-scheme">
                 <label for="color-scheme-select">Select color scheme:</label>
                 <select id="color-scheme-select"></select>
             </section>
-            <hr>
-            <section id="contacts">
-                <h2>Contacts:</h2>
+            <details id="contacts">
+                <summary>Contacts</summary>
                 <a href="mailto:tremul27@gmail.com">tremul27@gmail.com</a>
                 <a href="tel:+421950265147">+421 950 265 147</a>
                 <address>B1 32/2, Staré Grunty 53, Bratislava, Slovakia</address>
                 <p>Nizomiddin Toshpulatov © 2020</p>
-            </section>
-        </details>
+            </details>
+        </section>
     </aside>
     <div id="background-dimmer"></div>
+    <style>
+        @import '/src/main.css';
+
+        .is-animating {
+            transition: none !important;
+        }
+
+        #side-nav {
+            z-index: 100;
+            display: grid;
+            gap: 2rem;
+            align-content: space-between;
+            position: fixed;
+            top: 0;
+            left: 0;
+            background-color: var(--side-nav-background);
+            padding: 2rem 1rem 4rem;
+            width: var(--side-nav-width);
+            height: 100vh;
+            will-change: transform;
+            transform: translateX(0);
+            transition: transform ease-in-out var(--transition-duration-medium);
+        }
+
+        #side-nav[aria-hidden="true"] {
+            transform: translateX(-100%);
+        }
+
+        #side-nav[aria-hidden="true"] ~ #background-dimmer {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        #background-dimmer {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            will-change: opacity;
+            background-color: rgba(0, 0, 0, .65);
+            transition: opacity ease-in var(--transition-duration-medium);
+            z-index: 98;
+        }
+
+        #side-nav-content {
+            display: grid;
+            gap: 1rem;
+            padding: 0;
+            margin: 0;
+            list-style: none;
+        }
+
+        #color-scheme {
+            display: grid;
+            gap: 1em;
+            justify-items: start;
+            align-self: end;
+        }
+
+        #contacts {
+            display: flex;
+            flex-direction: column;
+        }
+
+        #contacts summary {
+            margin: 1.5rem 0;
+        }
+
+        #contacts *:not(summary) {
+            font-size: .9em;
+            opacity: .86;
+        }
+
+        #contacts * + * {
+            margin-top: 1rem;
+        }
+
+        #top-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: var(--top-bar-height);
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            align-items: center;
+            padding: 1rem;
+            background-color: var(--side-nav-background);
+            z-index: 99;
+        }
+
+        #top-bar-title {
+            margin: 0;
+            text-align: center;
+        }
+
+        #toggle-button {
+            --size: 32px;
+            width: var(--size);
+            height: var(--size);
+            justify-self: start;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: transparent;
+            border: none;
+            font-size: inherit;
+            font-family: inherit;
+            color: inherit;
+            padding: 0;
+        }
+
+        #toggle-button rect {
+            fill: currentColor;
+        }
+
+        @media only screen and (min-width: 768px) {
+            #side-nav {
+                z-index: 99;
+                padding: calc(60px + 2rem) 1rem 4rem;
+            }
+
+            #toggle-button {
+                display: none;
+            }
+
+            #top-bar {
+                z-index: 100;
+                grid-template-columns: 1fr;
+            }
+
+            #top-bar-title {
+                text-align: left;
+            }
+
+            #background-dimmer {
+                display: none;
+            }
+        }
+    </style>
 </template>

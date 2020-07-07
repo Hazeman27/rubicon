@@ -6,10 +6,10 @@ import { registerCustomElement } from './components/echo.js';
  */
 
 function main() {
-    registerCustomElement({
-        name: 'side-nav',
-        constructor: SideNav,
-    });
+	registerCustomElement({
+		name: 'side-nav',
+		constructor: SideNav,
+	});
 }
 
 main();
