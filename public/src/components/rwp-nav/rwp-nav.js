@@ -1,4 +1,4 @@
-import { fetchTemplate, attachShadowRoot } from '../echo.js';
+import { initCustomElement } from '../echo.js';
 import { addColorSchemeControls } from './modules/color-scheme.js';
 import {
 	getTouchDirection,
@@ -9,8 +9,11 @@ import {
 /**
  * `SideNav` - custom element. Implements both native android like top bar and
  * sidebar with full touch control.
+ *
+ * @todo Add breadcrumbs
+ * @todo Add profile page
  */
-class SideNav extends HTMLElement {
+class RWPNav extends HTMLElement {
 	/** @readonly */
 	static BREAKPOINT = 768;
 
@@ -27,6 +30,9 @@ class SideNav extends HTMLElement {
 
 	/** @type {number} */
 	_width;
+
+	/** @type {number} transition duration in seconds. */
+	_transitionDuration;
 
 	/** @type {boolean} */
 	_isHidden;
@@ -56,25 +62,31 @@ class SideNav extends HTMLElement {
 		this.handleTouchMove = this.handleTouchMove.bind(this);
 		this.handleTouchEnd = this.handleTouchEnd.bind(this);
 
-		fetchTemplate('/src/components/side-nav/side-nav.html').then(template => {
-			const shadowRoot = attachShadowRoot(this, template);
+		initCustomElement(this, '/src/components/rwp-nav/rwp-nav.html')
+			.then(shadowRoot => {
+				this._container = shadowRoot.querySelector('#side-nav');
+				this._toggleButton = shadowRoot.querySelector('#toggle-button');
+				this._backgroundDimmer = shadowRoot.querySelector('#background-dimmer');
 
-			this._container = shadowRoot.querySelector('#side-nav');
-			this._toggleButton = shadowRoot.querySelector('#toggle-button');
-			this._backgroundDimmer = shadowRoot.querySelector('#background-dimmer');
+				this._width = Number.parseInt(
+					self.getComputedStyle(this._container).width
+				);
 
-			this._width = Number.parseInt(self.getComputedStyle(this._container).width);
-			this._isHidden = self.innerWidth < SideNav.BREAKPOINT;
+				this._transitionDuration = Number.parseFloat(
+					self.getComputedStyle(this._container).transitionDuration
+				);
 
-			this._toggleButton.addEventListener('click', this.toggle);
-			this._backgroundDimmer.addEventListener('click', this.toggle);
+				this._isHidden = self.innerWidth < RWPNav.BREAKPOINT;
 
-			this.manageEventListeners('add');
-			self.addEventListener('resize', this.handleResize);
+				this._toggleButton.addEventListener('click', this.toggle);
+				this._backgroundDimmer.addEventListener('click', this.toggle);
 
-			this.setContainerAriaHiddenAttribute();
-			addColorSchemeControls(shadowRoot.querySelector('#color-scheme-select'));
-		});
+				this.manageEventListeners('add');
+				self.addEventListener('resize', this.handleResize);
+
+				this.setContainerAriaHiddenAttribute();
+				addColorSchemeControls(shadowRoot.querySelector('#color-scheme-select'));
+			});
 	}
 
 	/**
@@ -132,7 +144,11 @@ class SideNav extends HTMLElement {
 		elements.forEach(element => element.classList.toggle('is-animating'));
 	}
 
-	toggle() {
+	/**
+	 * @param {Event} _event
+	 * @param {number} [touchDelta=0]
+	 */
+	toggle(_event, touchDelta = 0) {
 
 		this._container.removeAttribute('style');
 		this._backgroundDimmer.removeAttribute('style');
@@ -143,6 +159,17 @@ class SideNav extends HTMLElement {
 			this._backgroundDimmerOpacity = 0;
 		} else {
 			this._backgroundDimmerOpacity = 1;
+		}
+
+		if (touchDelta !== 0) {
+			const duration =
+				this._transitionDuration * (Math.abs(touchDelta) / this._width);
+
+			this._container.style.transitionDuration = `${duration}s`;
+
+			setTimeout(() => {
+				this._container.removeAttribute('style');
+			}, duration * 1500);
 		}
 
 		this.setContainerAriaHiddenAttribute();
@@ -165,7 +192,7 @@ class SideNav extends HTMLElement {
 
 	handleResize() {
 
-		if (self.innerWidth >= SideNav.BREAKPOINT &&
+		if (self.innerWidth >= RWPNav.BREAKPOINT &&
 			this._lastActionOnEventListeners === 'add'
 		) {
 
@@ -174,7 +201,7 @@ class SideNav extends HTMLElement {
 			this.manageEventListeners('remove');
 		}
 
-		if (self.innerWidth < SideNav.BREAKPOINT &&
+		if (self.innerWidth < RWPNav.BREAKPOINT &&
 			this._lastActionOnEventListeners === 'remove'
 		) {
 
@@ -205,7 +232,7 @@ class SideNav extends HTMLElement {
 		this._touchData.currentX = touches[0].clientX;
 		this._touchData.currentY = touches[0].clientY;
 
-		if (calcTouchAngle(this._touchData) < SideNav.TOUCH_ANGLE_THRESHOLD) {
+		if (calcTouchAngle(this._touchData) < RWPNav.TOUCH_ANGLE_THRESHOLD) {
 			this._touchData.currentX = 0;
 			this._touchData.currentY = 0;
 			return;
@@ -247,8 +274,8 @@ class SideNav extends HTMLElement {
 			}
 		}
 
-		else this.toggle();
+		else this.toggle(null, touchDelta);
 	}
 }
 
-export default SideNav;
+export default RWPNav;

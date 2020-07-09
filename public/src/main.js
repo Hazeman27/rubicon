@@ -1,15 +1,22 @@
-import SideNav from './components/side-nav/side-nav.js';
-import { registerCustomElement } from './components/echo.js';
+import RWPNav from './components/rwp-nav/rwp-nav.js';
+import RWPButton from './components/rwp-button/rwp-button.js';
+import { registerCustomElements } from './components/echo.js';
 
 /**
  * Main function. Registers all custom elements.
  */
 
 function main() {
-	registerCustomElement({
-		name: 'side-nav',
-		constructor: SideNav,
-	});
+	registerCustomElements([
+		{
+			name: 'rwp-nav',
+			constructor: RWPNav,
+		},
+		{
+			name: 'rwp-button',
+			constructor: RWPButton,
+		}
+	]);
 }
 
 main();

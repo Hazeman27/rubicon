@@ -2,7 +2,8 @@
  * Fetches custom element's template.
  *
  * @param {string} path absolute path to HTML file with single template element.
- * @returns {DocumentFragment | null} content of the template element.
+ * @returns {Promise<DocumentFragment> | Promise<null>} content of the template
+ * element.
  */
 export async function fetchTemplate(path) {
 	try {
@@ -23,9 +24,11 @@ export async function fetchTemplate(path) {
 /**
  * Attaches shadow root to custom element.
  *
- * @param {HTMLElement} element custom element that shadow root is being attached to.
+ * @param {HTMLElement} element custom element that shadow root is being
+ * attached to.
  * @param {HTMLTemplateElement} template template of the custom element.
- * @returns {ShadowRoot} shadow root that has been attached to custom element.
+ * @returns {ShadowRoot} shadow root that has been attached to the custom
+ * element.
  */
 export function attachShadowRoot(element, template) {
 	const shadowRoot = element.attachShadow({ mode: 'open' });
@@ -35,11 +38,28 @@ export function attachShadowRoot(element, template) {
 }
 
 /**
+ * Fetches custom element's template and attaches shadow root to it.
+ *
+ * @param {HTMLElement} element custom element that shadow root is being
+ * attached to.
+ * @param {string} templatePath absolute path to HTML file with single template
+ * element.
+ * @returns {Promise<ShadowRoot>} shadow root that has been attached to the
+ * custom element.
+ */
+export async function initCustomElement(element, templatePath) {
+	const template = await fetchTemplate(templatePath);
+	return attachShadowRoot(element, template);
+}
+
+/**
  * @typedef CustomElement
  * @type {object}
  * @property {string} name name of the custom element.
- * @property {CustomElementConstructor} constructor constructor of the custom element.
- * @property {ElementDefinitionOptions} options definition options for the custom element.
+ * @property {CustomElementConstructor} constructor constructor of the
+ * custom element.
+ * @property {ElementDefinitionOptions} options definition options for the
+ * custom element.
  */
 
 /**
