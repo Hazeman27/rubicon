@@ -1,5 +1,5 @@
 <template>
-    <nav id="top-bar" aria-label="top bar">
+    <div id="top-bar" aria-label="top bar">
         <button id="toggle-button" aria-label="main-navigation-toggle">
             <svg width="24" height="21" viewBox="0 0 24 15">
                 <rect x="0" y="0" width="24" height="3" />
@@ -8,9 +8,9 @@
             </svg>
         </button>
         <h2 id="top-bar-title">
-            <slot name="title">Rubicon</slot>
+            <slot name="title"><abbr title="Rubic's Web Platform">RWP</abbr></slot>
         </h2>
-    </nav>
+    </div>
     <aside id="side-nav" aria-label="main-navigation" aria-hidden="true">
         <ul id="side-nav-content">
             <slot name="content">
@@ -34,9 +34,14 @@
             </details>
         </section>
     </aside>
+    <nav id="breadcrumbs"></nav>
     <div id="background-dimmer"></div>
     <style>
         @import '/src/main.css';
+
+        #breadcrumbs {
+            display: none;
+        }
 
         .is-animating {
             transition: none !important;
@@ -133,6 +138,10 @@
             text-align: center;
         }
 
+        #top-bar-title abbr {
+            text-decoration: none;
+        }
+
         #toggle-button {
             --size: 24px;
             width: var(--size);
@@ -175,6 +184,19 @@
 
             #background-dimmer {
                 display: none;
+            }
+
+            #breadcrumbs {
+                display: grid;
+                position: fixed;
+                font-size: .9em;
+                left: calc(var(--side-nav-width) + 1rem);
+                top: calc(var(--top-bar-height) + 1rem);
+                opacity: .7;
+            }
+
+            #breadcrumbs *::before {
+                content: '>';
             }
         }
     </style>

@@ -1,4 +1,4 @@
-import { initCustomElement } from '../echo.js';
+import RWPElement from '../rwp.js';
 import { addColorSchemeControls } from './modules/color-scheme.js';
 import {
 	getTouchDirection,
@@ -13,7 +13,7 @@ import {
  * @todo Add breadcrumbs
  * @todo Add profile page
  */
-class RWPNav extends HTMLElement {
+class RWPNav extends RWPElement {
 	/** @readonly */
 	static BREAKPOINT = 768;
 
@@ -29,10 +29,10 @@ class RWPNav extends HTMLElement {
 	};
 
 	/** @type {number} */
-	_width;
+	_backgroundDimmerOpacity = 0;
 
-	/** @type {number} transition duration in seconds. */
-	_transitionDuration;
+	/** @type {number} */
+	_width;
 
 	/** @type {boolean} */
 	_isHidden;
@@ -49,8 +49,8 @@ class RWPNav extends HTMLElement {
 	/** @type {HTMLElement} */
 	_backgroundDimmer;
 
-	/** @type {number} */
-	_backgroundDimmerOpacity = 0;
+	/** @type {HTMLElement} */
+	_breadcrumbs;
 
 	constructor() {
 		super();
@@ -61,32 +61,36 @@ class RWPNav extends HTMLElement {
 		this.handleTouchStart = this.handleTouchStart.bind(this);
 		this.handleTouchMove = this.handleTouchMove.bind(this);
 		this.handleTouchEnd = this.handleTouchEnd.bind(this);
+		this.updateBreadcrumbs = this.updateBreadcrumbs.bind(this);
+	}
 
-		initCustomElement(this, '/src/components/rwp-nav/rwp-nav.html')
-			.then(shadowRoot => {
-				this._container = shadowRoot.querySelector('#side-nav');
-				this._toggleButton = shadowRoot.querySelector('#toggle-button');
-				this._backgroundDimmer = shadowRoot.querySelector('#background-dimmer');
+	/** @override */
+	init() {
+		super.init();
 
-				this._width = Number.parseInt(
-					self.getComputedStyle(this._container).width
-				);
+		this._container = this.shadowRoot.querySelector('#side-nav');
+		this._toggleButton = this.shadowRoot.querySelector('#toggle-button');
+		this._backgroundDimmer = this.shadowRoot.querySelector('#background-dimmer');
+		this._breadcrumbs = this.shadowRoot.querySelector('#breadcrumbs');
 
-				this._transitionDuration = Number.parseFloat(
-					self.getComputedStyle(this._container).transitionDuration
-				);
+		this._breadcrumbs.innerHTML = location;
 
-				this._isHidden = self.innerWidth < RWPNav.BREAKPOINT;
+		this._width = Number.parseInt(
+			self.getComputedStyle(this._container).width
+		);
 
-				this._toggleButton.addEventListener('click', this.toggle);
-				this._backgroundDimmer.addEventListener('click', this.toggle);
+		this._isHidden = self.innerWidth < RWPNav.BREAKPOINT;
 
-				this.manageEventListeners('add');
-				self.addEventListener('resize', this.handleResize);
+		this._toggleButton.addEventListener('click', this.toggle);
+		this._backgroundDimmer.addEventListener('click', this.toggle);
 
-				this.setContainerAriaHiddenAttribute();
-				addColorSchemeControls(shadowRoot.querySelector('#color-scheme-select'));
-			});
+		this.manageEventListeners('add');
+
+		self.addEventListener('resize', this.handleResize);
+		self.addEventListener('popstate', this.updateBreadcrumbs);
+
+		this.setContainerAriaHiddenAttribute();
+		addColorSchemeControls(this.shadowRoot.querySelector('#color-scheme-select'));
 	}
 
 	/**
@@ -144,11 +148,7 @@ class RWPNav extends HTMLElement {
 		elements.forEach(element => element.classList.toggle('is-animating'));
 	}
 
-	/**
-	 * @param {Event} _event
-	 * @param {number} [touchDelta=0]
-	 */
-	toggle(_event, touchDelta = 0) {
+	toggle() {
 
 		this._container.removeAttribute('style');
 		this._backgroundDimmer.removeAttribute('style');
@@ -161,27 +161,14 @@ class RWPNav extends HTMLElement {
 			this._backgroundDimmerOpacity = 1;
 		}
 
-		if (touchDelta !== 0) {
-			const duration =
-				this._transitionDuration * (Math.abs(touchDelta) / this._width);
-
-			this._container.style.transitionDuration = `${duration}s`;
-
-			setTimeout(() => {
-				this._container.removeAttribute('style');
-			}, duration * 1500);
-		}
-
 		this.setContainerAriaHiddenAttribute();
 	}
 
 	/** @param {HTMLElement} element */
 	toggleButtonPressed(element) {
-
 		if (!element)
 			return false;
-
-		return element.closest('#toggle-button') !== null;
+		return element.closest('rwp-nav') !== null;
 	}
 
 	/** @param {KeyboardEvent} event */
@@ -195,16 +182,14 @@ class RWPNav extends HTMLElement {
 		if (self.innerWidth >= RWPNav.BREAKPOINT &&
 			this._lastActionOnEventListeners === 'add'
 		) {
-
 			this._isHidden = true;
 			this.toggle();
 			this.manageEventListeners('remove');
 		}
 
-		if (self.innerWidth < RWPNav.BREAKPOINT &&
+		else if (self.innerWidth < RWPNav.BREAKPOINT &&
 			this._lastActionOnEventListeners === 'remove'
 		) {
-
 			this._isHidden = false;
 			this.toggle();
 			this.manageEventListeners('add');
@@ -212,9 +197,9 @@ class RWPNav extends HTMLElement {
 	}
 
 	/** @param {TouchEvent} event touch event. */
-	handleTouchStart({ originalTarget, touches }) {
+	handleTouchStart({ target, touches }) {
 
-		if (this.toggleButtonPressed(originalTarget))
+		if (this._isHidden && this.toggleButtonPressed(target))
 			return;
 
 		this._touchData.startX = touches[0].clientX;
@@ -224,9 +209,9 @@ class RWPNav extends HTMLElement {
 	}
 
 	/** @param {TouchEvent} event touch event. */
-	handleTouchMove({ originalTarget, touches }) {
+	handleTouchMove({ target, touches }) {
 
-		if (this.toggleButtonPressed(originalTarget))
+		if (this._isHidden && this.toggleButtonPressed(target))
 			return;
 
 		this._touchData.currentX = touches[0].clientX;
@@ -254,9 +239,9 @@ class RWPNav extends HTMLElement {
 	}
 
 	/** @param {TouchEvent} event touch event. */
-	handleTouchEnd({ originalTarget }) {
+	handleTouchEnd({ target }) {
 
-		if (this.toggleButtonPressed(originalTarget))
+		if (this._isHidden && this.toggleButtonPressed(target))
 			return;
 
 		this.toggleAnimating(this._container, this._backgroundDimmer);
@@ -274,7 +259,11 @@ class RWPNav extends HTMLElement {
 			}
 		}
 
-		else this.toggle(null, touchDelta);
+		else this.toggle();
+	}
+
+	updateBreadcrumbs() {
+		this._breadcrumbs.innerHTML = location;
 	}
 }
 

@@ -62,16 +62,6 @@ details > summary {
     cursor: pointer;
 }
 
-button {
-    font-size: inherit;
-    font-family: inherit;
-    color: var(--theme-foreground-contrast);
-    background-color: var(--theme-background);
-    padding: .65em 1.5em;
-    border: none;
-    border-radius: var(--border-radius);
-}
-
 select {
     font-size: inherit;
     font-family: inherit;
@@ -80,6 +70,10 @@ select {
     border: 1px solid currentColor;
     padding: .28em .64em;
     border-radius: var(--border-radius);
+}
+
+abbr {
+    cursor: help;
 }
 
 main {
@@ -93,6 +87,7 @@ main {
     }
 
     main {
+        margin-top: calc(var(--top-bar-height) + 1.5rem);
         margin-left: var(--side-nav-width);
     }
 }

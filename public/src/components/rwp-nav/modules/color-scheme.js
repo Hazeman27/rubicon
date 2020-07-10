@@ -66,11 +66,10 @@ function getSchemeOptions(currentScheme) {
 	if (currentScheme === 'system')
 		return ['dark', 'light'];
 
-	else if (currentScheme === 'dark')
+	if (currentScheme === 'dark')
 		return ['light', 'system'];
 
-	else
-		return ['dark', 'system'];
+	return ['dark', 'system'];
 }
 
 /**

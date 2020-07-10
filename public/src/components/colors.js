@@ -727,7 +727,7 @@ export function getColorInfo(color) {
 
 /**
  * @param {WebColor | string} color
- * @returns {number[] | undefined} rgb array: [r, g, b].
+ * @returns {number[] | null} rgb array: [r, g, b].
  */
 export function getColorRGB(color) {
 	if (getColorInfo(color))
@@ -738,8 +738,8 @@ export function getColorRGB(color) {
 
 		if (color.length !== 4 && color.length !== 7) {
 			console.error('Incorrect hexadecimal color format!');
-			console.error(`Expected formats: #AAA or #RRGGBB. But got ${color}`);
-			return undefined;
+			console.error('Expected formats: #AAA or #RRGGBB. But got', color);
+			return null;
 		}
 
 		if (color.length === 4 &&
@@ -764,11 +764,12 @@ export function getColorRGB(color) {
 	}
 
 	console.error('Incorrect color format!');
-	console.error(`
-		Expected #AAA, #RRGGBB, or rgba(255, 255, 255) format. But got ${color}
-	`);
+	console.error(
+		'Expected #AAA, #RRGGBB, or rgba(255, 255, 255) format. But got',
+		color
+	);
 
-	return undefined;
+	return null;
 }
 
 /**
@@ -805,14 +806,15 @@ export function calcColorBrightness(r, g, b) {
  *
  * @param {WebColor} foregroundColor
  * @param {WebColor} backgroundColor
- * @returns {DifferenceInfo}
+ * @returns {DifferenceInfo | null} `DifferenceInfo` object. If its `difference` property
+ * is higher than 500 then its `isGood` property is set to `true`.
  */
 export function calcColorDifference(foregroundColor, backgroundColor) {
 	const fg = getColorRGB(foregroundColor);
 	const bg = getColorRGB(backgroundColor);
 
 	if (!fg || !bg)
-		return undefined;
+		return null;
 
 	const difference = Math.max(fg[0], bg[0]) - Math.min(fg[0], bg[0]) +
 			Math.max(fg[1], bg[1]) - Math.min(fg[1], bg[1]) +
