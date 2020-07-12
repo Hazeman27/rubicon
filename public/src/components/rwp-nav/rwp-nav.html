@@ -12,13 +12,11 @@
         </h2>
     </div>
     <aside id="side-nav" aria-label="main-navigation" aria-hidden="true">
-        <ul id="side-nav-content">
-            <slot name="content">
-                <li><a href="#">Link 1</a></li>
-                <li><a href="#">Link 2</a></li>
-                <li><a href="#">Link 3</a></li>
-            </slot>
-        </ul>
+        <slot id="side-nav-links" name="links">
+            <li><a href="#">Link 1</a></li>
+            <li><a href="#">Link 2</a></li>
+            <li><a href="#">Link 3</a></li>
+        </slot>
         <section>
             <h2>Rubic's web platform</h2>
             <section id="color-scheme">
@@ -34,14 +32,9 @@
             </details>
         </section>
     </aside>
-    <nav id="breadcrumbs"></nav>
     <div id="background-dimmer"></div>
     <style>
         @import '/src/main.css';
-
-        #breadcrumbs {
-            display: none;
-        }
 
         .is-animating {
             transition: none !important;
@@ -85,7 +78,8 @@
             z-index: 98;
         }
 
-        #side-nav-content {
+        #side-nav-links::slotted(ul),
+        #side-nav-links::slotted(ol) {
             display: grid;
             gap: 1rem;
             padding: 0;
@@ -184,19 +178,6 @@
 
             #background-dimmer {
                 display: none;
-            }
-
-            #breadcrumbs {
-                display: grid;
-                position: fixed;
-                font-size: .9em;
-                left: calc(var(--side-nav-width) + 1rem);
-                top: calc(var(--top-bar-height) + 1rem);
-                opacity: .7;
-            }
-
-            #breadcrumbs *::before {
-                content: '>';
             }
         }
     </style>

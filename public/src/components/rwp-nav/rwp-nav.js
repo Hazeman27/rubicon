@@ -1,4 +1,4 @@
-import RWPElement from '../rwp.js';
+import RWPElement from '../rwp/rwp.js';
 import { addColorSchemeControls } from './modules/color-scheme.js';
 import {
 	getTouchDirection,
@@ -49,9 +49,6 @@ class RWPNav extends RWPElement {
 	/** @type {HTMLElement} */
 	_backgroundDimmer;
 
-	/** @type {HTMLElement} */
-	_breadcrumbs;
-
 	constructor() {
 		super();
 
@@ -61,19 +58,15 @@ class RWPNav extends RWPElement {
 		this.handleTouchStart = this.handleTouchStart.bind(this);
 		this.handleTouchMove = this.handleTouchMove.bind(this);
 		this.handleTouchEnd = this.handleTouchEnd.bind(this);
-		this.updateBreadcrumbs = this.updateBreadcrumbs.bind(this);
 	}
 
 	/** @override */
 	init() {
 		super.init();
 
-		this._container = this.shadowRoot.querySelector('#side-nav');
-		this._toggleButton = this.shadowRoot.querySelector('#toggle-button');
-		this._backgroundDimmer = this.shadowRoot.querySelector('#background-dimmer');
-		this._breadcrumbs = this.shadowRoot.querySelector('#breadcrumbs');
-
-		this._breadcrumbs.innerHTML = location;
+		this._container = this._shadowRoot.querySelector('#side-nav');
+		this._toggleButton = this._shadowRoot.querySelector('#toggle-button');
+		this._backgroundDimmer = this._shadowRoot.querySelector('#background-dimmer');
 
 		this._width = Number.parseInt(
 			self.getComputedStyle(this._container).width
@@ -87,10 +80,9 @@ class RWPNav extends RWPElement {
 		this.manageEventListeners('add');
 
 		self.addEventListener('resize', this.handleResize);
-		self.addEventListener('popstate', this.updateBreadcrumbs);
 
 		this.setContainerAriaHiddenAttribute();
-		addColorSchemeControls(this.shadowRoot.querySelector('#color-scheme-select'));
+		addColorSchemeControls(this._shadowRoot.querySelector('#color-scheme-select'));
 	}
 
 	/**
@@ -260,10 +252,6 @@ class RWPNav extends RWPElement {
 		}
 
 		else this.toggle();
-	}
-
-	updateBreadcrumbs() {
-		this._breadcrumbs.innerHTML = location;
 	}
 }
 

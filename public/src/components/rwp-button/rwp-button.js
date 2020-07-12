@@ -1,4 +1,4 @@
-import RWPElement from '../rwp.js';
+import RWPElement from '../rwp/rwp.js';
 
 class RWPButton extends RWPElement {}
 

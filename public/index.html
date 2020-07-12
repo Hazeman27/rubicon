@@ -9,19 +9,21 @@
     <script src="/src/main.js" type="module" defer></script>
 </head>
 <body>
-    <rwp-nav></rwp-nav>
-    <main>
-        <ul>
-            <li>Fix side nav animations</li>
-            <li>Add dark theme support</li>
+    <rwp-nav>
+        <ul slot="links">
+            <li><a href="home.html">Home</a></li>
+            <li><a href="test-1.html">Test 1</a></li>
+            <li><a href="test-2.html">Test 2</a></li>
         </ul>
-        <rwp-button bg-color="blue">Test button</rwp-button>
-        <rwp-button bg-color="green">Test button</rwp-button>
-        <rwp-button bg-color="indianred">Test button</rwp-button>
-        <rwp-button bg-color="fuchsia">Test button</rwp-button>
-        <rwp-button bg-color="lightcyan">Test button</rwp-button>
-        <rwp-button bg-color="teal">Test button</rwp-button>
-        <rwp-button bg-color="darkblue">Test button</rwp-button>
+    </rwp-nav>
+    <rwp-breadcrumbs></rwp-breadcrumbs>
+    <main id="root">
+        <rwp-router views-path="/src/views">
+            <rwp-route path="/" view="home.html"></rwp-route>
+            <rwp-route path="/test-1" view="test-1.html"></rwp-route>
+            <rwp-route path="/test-2" view="test-2.html"></rwp-route>
+            <rwp-route path="/test/:id" view="test-dynamic.html"></rwp-route>
+        </rwp-router>
     </main>
 </body>
 </html>

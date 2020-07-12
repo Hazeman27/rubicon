@@ -1,3 +1,11 @@
+import { generateFilePathRegExp, extractFilePathInfo } from './utils.js';
+
+/** @readonly */
+const STACK_TRACE_REG_EXP = new RegExp(`(?<=${location.origin}).*`, 'g');
+
+/** @readonly */
+const JS_TS_REG_EXP = generateFilePathRegExp(['js', 'ts']);
+
 /**
  * Fetches custom element's template.
  *
@@ -42,13 +50,12 @@ export function attachShadowRoot(element, template) {
  *
  * @param {HTMLElement} element custom element that shadow root is being
  * attached to.
- * @param {string} templatePath absolute path to HTML file with single template
- * element.
+ * @param {string} path absolute path to element's template file.
  * @returns {Promise<ShadowRoot>} shadow root that has been attached to the
  * custom element.
  */
-export async function initCustomElement(element, templatePath) {
-	const template = await fetchTemplate(templatePath);
+export async function initCustomElement(element, path) {
+	const template = await fetchTemplate(path);
 	return attachShadowRoot(element, template);
 }
 
@@ -57,7 +64,7 @@ export async function initCustomElement(element, templatePath) {
  * @property {string} name name of the custom element.
  * @property {CustomElementConstructor} constructor constructor of the
  * custom element.
- * @property {ElementDefinitionOptions} options definition options for the
+ * @property {ElementDefinitionOptions} [options] definition options for the
  * custom element.
  */
 
@@ -80,12 +87,6 @@ export function registerCustomElements(elements) {
 	getCurrentFilePathInfo();
 }
 
-/** @readonly */
-const STACK_TRACE_REG_EXP = new RegExp(`(?<=${location.origin}).*`, 'g');
-
-/** @readonly */
-const FILE_PATH_REG_EXP = new RegExp('(.*/)(.+)(?=(.js|.ts))');
-
 /**
  * @typedef {object} FilePathInfo contains information about the current file path.
  * @property {string} fullPath absolute path to the current file.
@@ -101,55 +102,60 @@ const FILE_PATH_REG_EXP = new RegExp('(.*/)(.+)(?=(.js|.ts))');
  *
  * Uses error's stack trace to extract file path information.
  *
+ * @param {string} fileName
  * @returns {FilePathInfo} object that contains information about the current file path;
  */
-export function getCurrentFilePathInfo() {
+export function getCurrentFilePathInfo(fileName) {
 	const error = new Error();
 	const match = error.stack.match(STACK_TRACE_REG_EXP);
 
-	const filePathInfos = match.map(entry => {
-		const [
-			fullPathNoExtension,
-			directoryPath,
-			fileName,
-			fileExtension
-		] = entry.match(FILE_PATH_REG_EXP);
+	const filePathInfos = match.map(entry => extractFilePathInfo(entry, JS_TS_REG_EXP))
+		.filter((pathInfo, index, array) => (
+			!array.slice(index + 1).find(entry => entry.fileName === pathInfo.fileName)
+		));
 
-		return {
-			fullPath: `${fullPathNoExtension}${fileExtension}`,
-			fullPathNoExtension,
-			directoryPath,
-			fileName,
-			fileExtension
-		};
-	}).filter((pathInfo, index, array) => (
-		!array.slice(index + 1).find(entry => entry.fileName === pathInfo.fileName)
-	));
-
-	return filePathInfos[1];
+	return filePathInfos.find(pathInfo => pathInfo.fileName === fileName);
 }
 
 /**
  * Custom Element base class. Fetches element's template and attaches `shadowRoot` to it.
  * If no template path is specified, sets current file's directory as the template path.
+ *
+ * @abstract
  */
 export class CustomElement extends HTMLElement {
-	/** @type {FilePathInfo} */
-	filePathInfo = getCurrentFilePathInfo();
-
 	/** @type {ShadowRoot} */
-	shadowRoot;
+	_shadowRoot;
 
-	/** @param {string} templatePath absolute path to the template. */
-	constructor(templatePath) {
+	/** @type {string} */
+	_name = this.tagName();
+
+	/**
+	 * @type {FilePathInfo}
+	 * @readonly
+	 */
+	_filePathInfo = getCurrentFilePathInfo(this._name);;
+
+	/**
+	 * @param {string} name
+	 * @param {string} [templatePath] absolute path to the template.
+	 */
+	constructor(name, templatePath) {
 		super();
+		let path = `${this._filePathInfo.fullPathNoExtension}.html`;
 
-		if (!templatePath)
-			templatePath = `${this.filePathInfo.fullPathNoExtension}.html`;
+		if (name) {
+			this._name = name;
+		} else if (!this._name) {
+			throw Error('Custom element must have a name!');
+		}
 
-		initCustomElement(this, templatePath)
+		if (templatePath)
+			path = templatePath;
+
+		initCustomElement(this, path)
 			.then(shadowRoot => {
-				this.shadowRoot = shadowRoot;
+				this._shadowRoot = shadowRoot;
 				this.init();
 			});
 	}
@@ -160,5 +166,22 @@ export class CustomElement extends HTMLElement {
 	 */
 	init() {
 		throw new Error('Must be implemented by subclass!');
+	}
+
+	/** @abstract */
+	tagName() {
+		return null;
+	}
+
+	get name() {
+		return this._name;
+	}
+
+	get filePathInfo() {
+		return this._filePathInfo;
+	}
+
+	get shadowRoot() {
+		return this._shadowRoot;
 	}
 }

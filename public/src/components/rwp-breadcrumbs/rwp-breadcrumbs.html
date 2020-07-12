@@ -1,0 +1,23 @@
+<template>
+    <nav id="breadcrumbs">
+        <slot></slot>
+    </nav>
+    <style>
+        @import '/src/main.css';
+
+        #breadcrumbs {
+            display: none;
+        }
+
+        @media only screen and (min-width: 768px) {
+            #breadcrumbs {
+                display: grid;
+                position: fixed;
+                font-size: .9em;
+                left: calc(var(--side-nav-width) + 1rem);
+                top: calc(var(--top-bar-height) + 1rem);
+                opacity: .7;
+            }
+        }
+    </style>
+</template>

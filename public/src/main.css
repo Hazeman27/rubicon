@@ -72,6 +72,11 @@ select {
     border-radius: var(--border-radius);
 }
 
+select option {
+    color: inherit;
+    background-color: inherit;
+}
+
 abbr {
     cursor: help;
 }

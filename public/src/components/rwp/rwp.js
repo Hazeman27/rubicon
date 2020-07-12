@@ -7,8 +7,13 @@ import { calcColorDifference } from './colors.js';
 class RWPElement extends CustomElement {
 	/** @override */
 	init() {
-		this.firstElement = this.shadowRoot.children[0];
+		this.firstElement = this._shadowRoot.children[0];
 		this.setColorBasedOnBackground();
+	}
+
+	/** @override */
+	tagName() {
+		return this.constructor.name.toLowerCase().split(/(?<=rwp)/).join('-');
 	}
 
 	/**
