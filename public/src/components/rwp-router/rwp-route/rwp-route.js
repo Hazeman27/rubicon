@@ -5,7 +5,12 @@ import RWPRouter from '../rwp-router.js';
 
 class RWPRoute extends RWPElement {
 	/** @readonly */
-	static PARAMS_REG_EXP = new RegExp('(?<=/:)([a-zA-Z0-9-_]+)(?=/)?', 'g');
+	static WORD_REG_EXP_STRING = '[\\w0-9-_]+';
+
+	/** @readonly */
+	static PARAMS_REG_EXP = new RegExp(
+		`(?<=/:)(${RWPRoute.WORD_REG_EXP_STRING})(?=/)?`, 'g'
+	);
 
 	/** @type {Path} */
 	_path;
@@ -85,9 +90,9 @@ class RWPRoute extends RWPElement {
 
 	/**
 	 * @typedef {object} Path
-	 * @property {string} path original path string.
-	 * @property {RegExp} regex regular expression that matches the path.
-	 * @property {string[]} params array of path parameters.
+	 * @property {string} path Original path string.
+	 * @property {RegExp} regex Regular expression that matches the path.
+	 * @property {string[]} params Array of path parameters.
 	 */
 
 	/**
@@ -98,7 +103,7 @@ class RWPRoute extends RWPElement {
 	static parsePath(path, exact) {
 
 		if (!path) {
-			console.error('Route must have a `path` attribute!');
+			console.error('Route must include `path` attribute!');
 			return null;
 		}
 
@@ -121,7 +126,10 @@ class RWPRoute extends RWPElement {
 		);
 
 		const pathRegExp = new RegExp(
-			`${lead}${trimmedPath.replace(paramsRegExp, '(.+)')}${tail}`
+			`${lead}${trimmedPath.replace(
+				paramsRegExp,
+				`(${RWPRoute.WORD_REG_EXP_STRING})`
+			)}${tail}`
 		);
 
 		return {

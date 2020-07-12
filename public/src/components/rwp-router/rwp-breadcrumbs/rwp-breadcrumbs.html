@@ -11,12 +11,29 @@
 
         @media only screen and (min-width: 768px) {
             #breadcrumbs {
-                display: grid;
+                display: flex;
                 position: fixed;
-                font-size: .9em;
                 left: calc(var(--side-nav-width) + 1rem);
                 top: calc(var(--top-bar-height) + 1rem);
+            }
+
+            .breadcrumb {
+                font-size: .9em;
                 opacity: .7;
+            }
+
+            .breadcrumb:hover,
+            .breadcrumb:focus {
+                opacity: 1;
+            }
+
+            .breadcrumb + .breadcrumb {
+                margin-left: .5em;
+            }
+
+            .breadcrumb + .breadcrumb::before {
+                content: '>';
+                margin-right: .5em;
             }
         }
     </style>

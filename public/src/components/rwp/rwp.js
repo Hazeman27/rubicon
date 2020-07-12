@@ -21,7 +21,7 @@ class RWPElement extends CustomElement {
 	 *
 	 * @param {string} attributeName
 	 * @param {string} [styleProperty]
-	 * @returns {string | null} attribute value
+	 * @returns {string | null} Attribute value
 	 */
 	setStyleFromAttribute(attributeName, styleProperty) {
 		if (!styleProperty) {

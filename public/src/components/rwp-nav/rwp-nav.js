@@ -10,7 +10,6 @@ import {
  * `SideNav` - custom element. Implements both native android like top bar and
  * sidebar with full touch control.
  *
- * @todo Add breadcrumbs
  * @todo Add profile page
  */
 class RWPNav extends RWPElement {
@@ -188,7 +187,7 @@ class RWPNav extends RWPElement {
 		}
 	}
 
-	/** @param {TouchEvent} event touch event. */
+	/** @param {TouchEvent} event */
 	handleTouchStart({ target, touches }) {
 
 		if (this._isHidden && this.toggleButtonPressed(target))
@@ -200,7 +199,7 @@ class RWPNav extends RWPElement {
 		this.toggleAnimating(this._container, this._backgroundDimmer);
 	}
 
-	/** @param {TouchEvent} event touch event. */
+	/** @param {TouchEvent} event */
 	handleTouchMove({ target, touches }) {
 
 		if (this._isHidden && this.toggleButtonPressed(target))
@@ -230,7 +229,7 @@ class RWPNav extends RWPElement {
 		);
 	}
 
-	/** @param {TouchEvent} event touch event. */
+	/** @param {TouchEvent} event */
 	handleTouchEnd({ target }) {
 
 		if (this._isHidden && this.toggleButtonPressed(target))

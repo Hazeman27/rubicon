@@ -150,7 +150,7 @@
 
 /**
  * @readonly
- * @type {Object.<string, ColorInfo>} named web colors with their hexadecimal
+ * @type {Object.<string, ColorInfo>} Named web colors with their hexadecimal
  * and rgb values.
  */
 
@@ -784,7 +784,7 @@ export function getColorRGB(color) {
  * @param {number} r value of the red channel, in range from 0 to 255
  * @param {number} g value of the green channel, in range from 0 to 255
  * @param {number} b value of the blue channel, in range from 0 to 255
- * @returns {BrightnessInfo} contrast value. If value is higher than 125 then
+ * @returns {BrightnessInfo} Contrast value. If value is higher than 125 then
  * brightness is good.
  */
 export function calcColorBrightness(r, g, b) {

@@ -9,8 +9,8 @@ const JS_TS_REG_EXP = generateFilePathRegExp(['js', 'ts']);
 /**
  * Fetches custom element's template.
  *
- * @param {string} path absolute path to HTML file with single template element.
- * @returns {Promise<DocumentFragment> | Promise<null>} content of the template
+ * @param {string} path Absolute path to HTML file with single template element.
+ * @returns {Promise<DocumentFragment> | Promise<null>} Content of the template
  * element.
  */
 export async function fetchTemplate(path) {
@@ -32,10 +32,10 @@ export async function fetchTemplate(path) {
 /**
  * Attaches shadow root to the custom element.
  *
- * @param {HTMLElement} element custom element that shadow root is being
+ * @param {HTMLElement} element Custom element that shadow root is being
  * attached to.
- * @param {HTMLTemplateElement} template template of the custom element.
- * @returns {ShadowRoot} shadow root that has been attached to the custom
+ * @param {HTMLTemplateElement} template Template of the custom element.
+ * @returns {ShadowRoot} Shadow root that has been attached to the custom
  * element.
  */
 export function attachShadowRoot(element, template) {
@@ -48,10 +48,10 @@ export function attachShadowRoot(element, template) {
 /**
  * Fetches custom element's template and attaches shadow root to it.
  *
- * @param {HTMLElement} element custom element that shadow root is being
+ * @param {HTMLElement} element Custom element that shadow root is being
  * attached to.
- * @param {string} path absolute path to element's template file.
- * @returns {Promise<ShadowRoot>} shadow root that has been attached to the
+ * @param {string} path Absolute path to element's template file.
+ * @returns {Promise<ShadowRoot>} Shadow root that has been attached to the
  * custom element.
  */
 export async function initCustomElement(element, path) {
@@ -61,17 +61,17 @@ export async function initCustomElement(element, path) {
 
 /**
  * @typedef {object} CustomElementEntry
- * @property {string} name name of the custom element.
- * @property {CustomElementConstructor} constructor constructor of the
+ * @property {string} name Name of the custom element.
+ * @property {CustomElementConstructor} constructor Constructor of the
  * custom element.
- * @property {ElementDefinitionOptions} [options] definition options for the
+ * @property {ElementDefinitionOptions} [options] Definition options for the
  * custom element.
  */
 
 /**
  * Registers single custom element.
  *
- * @param {CustomElementEntry} element object that contains name, constructor,
+ * @param {CustomElementEntry} element Object that contains name, constructor,
  * and definition options of the custom element.
  */
 export function registerCustomElement({ name, constructor, options = {} }) {
@@ -79,7 +79,7 @@ export function registerCustomElement({ name, constructor, options = {} }) {
 }
 
 /**
- * @param {CustomElementEntry[]} elements array of objects where each object
+ * @param {CustomElementEntry[]} elements Array of objects where each object
  * contains name, constructor, and definition options of the custom element.
  */
 export function registerCustomElements(elements) {
@@ -88,13 +88,13 @@ export function registerCustomElements(elements) {
 }
 
 /**
- * @typedef {object} FilePathInfo contains information about the current file path.
- * @property {string} fullPath absolute path to the current file.
- * @property {string} fullPathNoExtension absolute path to the current file without
+ * @typedef {object} FilePathInfo Contains information about the current file path.
+ * @property {string} fullPath Absolute path to the current file.
+ * @property {string} fullPathNoExtension Absolute path to the current file without
  * file extension.
- * @property {string} directoryPath absolute path to the current directory.
- * @property {string} fileName name of the current file, no extension.
- * @property {string} fileExtension extension of the current file.
+ * @property {string} directoryPath Absolute path to the current directory.
+ * @property {string} fileName Name of the current file, no extension.
+ * @property {string} fileExtension Extension of the current file.
  */
 /**
  * Gets information about the current file path. Idea comes from this stackoverflow post:
@@ -103,7 +103,7 @@ export function registerCustomElements(elements) {
  * Uses error's stack trace to extract file path information.
  *
  * @param {string} fileName
- * @returns {FilePathInfo} object that contains information about the current file path;
+ * @returns {FilePathInfo} Object that contains information about the current file path;
  */
 export function getCurrentFilePathInfo(fileName) {
 	const error = new Error();
@@ -138,7 +138,7 @@ export class CustomElement extends HTMLElement {
 
 	/**
 	 * @param {string} name
-	 * @param {string} [templatePath] absolute path to the template.
+	 * @param {string} [templatePath] Absolute path to the template.
 	 */
 	constructor(name, templatePath) {
 		super();
