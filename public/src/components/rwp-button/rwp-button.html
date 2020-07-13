@@ -13,6 +13,14 @@
             padding: .65em 1.5em;
             border: none;
             border-radius: var(--border-radius);
+            transition:
+                transform ease-in-out var(--transition-duration-fast),
+                border-radius ease-in-out var(--transition-duration-fast);
+        }
+
+        button:active {
+            transform: scale(.95);
+            border-radius: calc(var(--border-radius) * 1.25);
         }
     </style>
 </template>

@@ -1,4 +1,4 @@
-import RWPElement from '../rwp/rwp.js';
+import RWPElement from '../rwp-element.js';
 import { addColorSchemeControls } from './modules/color-scheme.js';
 import {
 	getTouchDirection,

@@ -1,3 +1,5 @@
+import { capitalize } from '../../../core/core-utils.js';
+
 /**
  * Adds color scheme controls to select tag.
  *
@@ -105,12 +107,4 @@ function getSystemPreference() {
  */
 function getCurrentPreference() {
 	return localStorage.getItem('preferred-color-scheme') || 'system';
-}
-
-/**
- * Capitalizes first letter of the string.
- * @param {string} string
- */
-function capitalize(string) {
-	return `${string[0].toUpperCase()}${string.slice(1)}`;
 }

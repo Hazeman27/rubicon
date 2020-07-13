@@ -1,4 +1,4 @@
-import RWPElement from '../../rwp/rwp.js';
+import RWPElement from '../../rwp-element.js';
 import RWPRoute from '../rwp-route/rwp-route.js';
 
 class RWPBreadcrumbs extends RWPElement {

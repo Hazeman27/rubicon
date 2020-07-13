@@ -1,5 +1,5 @@
-import { fetchTemplate } from '../../rwp/core.js';
-import RWPElement from '../../rwp/rwp.js';
+import { fetchTemplate } from '../../../core/core.js';
+import RWPElement from '../../rwp-element.js';
 // eslint-disable-next-line no-unused-vars
 import RWPRouter from '../rwp-router.js';
 
@@ -34,40 +34,61 @@ class RWPRoute extends RWPElement {
 	async init() {
 		super.init();
 
-		const viewPathAttr = this.attributes.getNamedItem('view');
-		const exact = this.attributes.getNamedItem('exact');
+		this._root = this._shadowRoot.querySelector('slot');
+		this._router = this.parentElement;
 
-		if (!viewPathAttr) {
-			console.error('Route must include view attribute!');
-			return null;
-		}
+		const exact = this.getAttribute('exact');
+		const isDefault = this.hasAttribute('default');
 
 		this._path = RWPRoute.parsePath(
 			this.attributes.getNamedItem('path'),
-			exact ? exact.value === 'true' : true
+			exact ? exact === 'true' : true,
+			isDefault
 		);
 
-		this._root = this._shadowRoot.querySelector('slot');
+		this._view = await this.getView();
+	}
 
-		this._router = this.parentElement;
-		this._viewsPath = this._router.attributes.getNamedItem('views-path');
+	/** @returns {Promise<DocumentFragment>} */
+	async getView() {
+		const viewPathAttr = this.getAttribute('view');
 
-		if (this._viewsPath) {
-			this._viewPath = `${this._viewsPath.value.trim()}${
-				RWPRoute.includesLeadingSlash(this._viewsPath.value) ? '' : '/'
-			}${viewPathAttr.value}`;
-		} else {
-			this._viewPath = viewPathAttr.value;
+		if (!viewPathAttr && !this._root.assignedElements().length > 0)
+			throw Error('Route must include view attribute or child elements!');
+
+		if (viewPathAttr) {
+			this._viewsPath = this._router.getAttribute('views-path');
+
+			if (this._viewsPath) {
+				this._viewPath = `${this._viewsPath.trim()}${
+					RWPRoute.includesLeadingSlash(this._viewsPath) ? '' : '/'
+				}${viewPathAttr}`;
+			} else {
+				this._viewPath = viewPathAttr;
+			}
+
+			return fetchTemplate(this._viewPath);
 		}
 
-		this._view = await fetchTemplate(this._viewPath);
+		const fragment = new DocumentFragment();
 
-		if (RWPRoute.pathMatchesLocation(this._path)) {
+		this._root.assignedElements().forEach(element => {
+			fragment.appendChild(element.cloneNode(true));
+			element.remove();
+		});
 
-			if (this._path.params)
-				this.setViewParams();
+		return fragment;
+	}
 
-			this._root.appendChild(this._view);
+	attributeChangedCallback(name, _oldValue, newValue) {
+		if (name !== 'current')
+			return;
+
+		if (newValue === 'true') {
+			this.clearRootContent();
+			this.setRootContent();
+		} else {
+			this.clearRootContent();
 		}
 	}
 
@@ -76,21 +97,38 @@ class RWPRoute extends RWPElement {
 
 		this._path.params.forEach((param, index) => {
 			const slot = this._view.querySelector(`slot[name="${param}"]`);
-			slot.textContent = currentParams[index + 1];
+
+			if (slot)
+				slot.textContent = currentParams[index + 1];
 		});
 	}
 
-	/**
-	 * @param {Path} path
-	 * @returns {boolean}
-	 */
-	static pathMatchesLocation(path) {
-		return path.regex.test(location.pathname);
+	setRootContent() {
+		if (this._path.params)
+			this.setViewParams();
+
+		this._root.appendChild(this._view.cloneNode(true));
+	}
+
+	clearRootContent() {
+		this._root.innerHTML = '';
+	}
+
+	get path() {
+		return this._path;
+	}
+
+	get viewPath() {
+		return this._viewPath;
+	}
+
+	static get observedAttributes() {
+		return ['current'];
 	}
 
 	/**
 	 * @typedef {object} Path
-	 * @property {string} path Original path string.
+	 * @property {string} href Original path string.
 	 * @property {RegExp} regex Regular expression that matches the path.
 	 * @property {string[]} params Array of path parameters.
 	 */
@@ -98,14 +136,21 @@ class RWPRoute extends RWPElement {
 	/**
 	 * @param {Attr} path
 	 * @param {boolean} exact
+	 * @param {boolean} isDefault
 	 * @returns {Path}
 	 */
-	static parsePath(path, exact) {
+	static parsePath(path, exact, isDefault) {
 
-		if (!path) {
-			console.error('Route must include `path` attribute!');
-			return null;
+		if (isDefault) {
+			return {
+				href: null,
+				regex: null,
+				params: null,
+			};
 		}
+
+		if (!path)
+			throw Error('Route must include `path` attribute!');
 
 		const trimmedPath = path.value.trim();
 		const params = trimmedPath.match(RWPRoute.PARAMS_REG_EXP);
@@ -115,7 +160,7 @@ class RWPRoute extends RWPElement {
 
 		if (!params) {
 			return {
-				path: trimmedPath,
+				href: trimmedPath,
 				regex: new RegExp(`${lead}${trimmedPath}${tail}`),
 				params: null
 			};
@@ -133,7 +178,7 @@ class RWPRoute extends RWPElement {
 		);
 
 		return {
-			path: trimmedPath,
+			href: trimmedPath,
 			regex: pathRegExp,
 			params: params.map(param => param.replace('-', ''))
 		};

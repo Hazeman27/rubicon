@@ -122,3 +122,16 @@ export function logFileExtErrorMessages(
 		pathInfo.fileExtension
 	).forEach(logger);
 }
+
+/**
+ * Capitalizes first letter of the string.
+ * @param {string} string
+ */
+export function capitalize(string) {
+	return `${string[0].toUpperCase()}${string.slice(1)}`;
+}
+
+/** @param {string} fileName */
+export function getBasename(fileName) {
+	return fileName.match(/[\w0-9-_]+(?=\.[\w0-9]+$)/)[0];
+}

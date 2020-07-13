@@ -1,4 +1,4 @@
-import { generateFilePathRegExp, extractFilePathInfo } from './utils.js';
+import { generateFilePathRegExp, extractFilePathInfo } from './core-utils.js';
 
 /** @readonly */
 const STACK_TRACE_REG_EXP = new RegExp(`(?<=${location.origin}).*`, 'g');
@@ -15,8 +15,8 @@ const JS_TS_REG_EXP = generateFilePathRegExp(['js', 'ts']);
  */
 export async function fetchTemplate(path) {
 	try {
-		const resoponse = await fetch(path);
-		const text = await resoponse.text();
+		const response = await fetch(path);
+		const text = await response.text();
 
 		const document = new DOMParser().parseFromString(text, 'text/html');
 		const template = document.querySelector('template');
@@ -107,14 +107,10 @@ export function registerCustomElements(elements) {
  */
 export function getCurrentFilePathInfo(fileName) {
 	const error = new Error();
-	const match = error.stack.match(STACK_TRACE_REG_EXP);
+	const matches = error.stack.match(STACK_TRACE_REG_EXP);
 
-	const filePathInfos = match.map(entry => extractFilePathInfo(entry, JS_TS_REG_EXP))
-		.filter((pathInfo, index, array) => (
-			!array.slice(index + 1).find(entry => entry.fileName === pathInfo.fileName)
-		));
-
-	return filePathInfos.find(pathInfo => pathInfo.fileName === fileName);
+	return matches.map(entry => extractFilePathInfo(entry, JS_TS_REG_EXP))
+		.find(pathInfo => pathInfo.fileName === fileName);
 }
 
 /**

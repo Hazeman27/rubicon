@@ -3,7 +3,7 @@ import RWPBreadcrumbs from './components/rwp-router/rwp-breadcrumbs/rwp-breadcru
 import RWPButton from './components/rwp-button/rwp-button.js';
 import RWPRouter from './components/rwp-router/rwp-router.js';
 import RWPRoute from './components/rwp-router/rwp-route/rwp-route.js';
-import { registerCustomElements } from './components/rwp/core.js';
+import { registerCustomElements } from './core/core.js';
 
 registerCustomElements([{
 	name: 'rwp-nav',

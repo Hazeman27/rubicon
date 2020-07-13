@@ -1,5 +1,5 @@
-import { CustomElement } from './core.js';
-import { calcColorDifference } from './colors.js';
+import { CustomElement } from '../core/core.js';
+import { calcColorDifference } from './rwp-colors.js';
 
 /**
  * Base RWP element.
