@@ -11,11 +11,6 @@ class RWPElement extends CustomElement {
 		this.setColorBasedOnBackground();
 	}
 
-	/** @override */
-	tagName() {
-		return this.constructor.name.toLowerCase().split(/(?<=rwp)/).join('-');
-	}
-
 	/**
 	 * If attribute is present maps its value to style property.
 	 *

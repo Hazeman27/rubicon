@@ -24,7 +24,7 @@ export async function fetchTemplate(path) {
 		return template.content.cloneNode(true);
 
 	} catch (error) {
-		console.log(error);
+		console.error(error, path);
 		return null;
 	}
 }
@@ -123,31 +123,15 @@ export class CustomElement extends HTMLElement {
 	/** @type {ShadowRoot} */
 	_shadowRoot;
 
-	/** @type {string} */
-	_name = this.tagName();
+	/** @type {FilePathInfo} */
+	_filePathInfo;
 
-	/**
-	 * @type {FilePathInfo}
-	 * @readonly
-	 */
-	_filePathInfo = getCurrentFilePathInfo(this._name);;
-
-	/**
-	 * @param {string} name
-	 * @param {string} [templatePath] Absolute path to the template.
-	 */
-	constructor(name, templatePath) {
+	/** @param {string} [templatePath] Absolute path to the template. */
+	constructor(templatePath) {
 		super();
-		let path = `${this._filePathInfo.fullPathNoExtension}.html`;
 
-		if (name) {
-			this._name = name;
-		} else if (!this._name) {
-			throw Error('Custom element must have a name!');
-		}
-
-		if (templatePath)
-			path = templatePath;
+		this._filePathInfo = getCurrentFilePathInfo(this.nodeName.toLowerCase());
+		let path = templatePath || `${this._filePathInfo.fullPathNoExtension}.html`;
 
 		initCustomElement(this, path)
 			.then(shadowRoot => {
@@ -162,15 +146,6 @@ export class CustomElement extends HTMLElement {
 	 */
 	init() {
 		throw new Error('Must be implemented by subclass!');
-	}
-
-	/** @abstract */
-	tagName() {
-		return null;
-	}
-
-	get name() {
-		return this._name;
 	}
 
 	get filePathInfo() {

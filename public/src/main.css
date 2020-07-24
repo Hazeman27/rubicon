@@ -25,14 +25,11 @@
     --transition-duration-medium: 200ms;
     --transition-duration-long: 350ms;
 
-    --font-family-fira: 'Fira Sans', sans-serif;
     --inner-padding: .28em .64em;
-
-    font-size: 16px;
 }
 
 body {
-    font-family: var(--font-family-fira);
+    font-family: sans-serif;
     color: var(--theme-foreground);
     background-color: var(--theme-background-contrast);
     margin: 0;
@@ -92,7 +89,7 @@ main {
 
 @media only screen and (min-width: 768px) {
     :root {
-        --side-nav-width: 260px;
+        --side-nav-width: 240px;
     }
 
     main {

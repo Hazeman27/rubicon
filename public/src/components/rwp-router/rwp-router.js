@@ -3,8 +3,8 @@ import RWPElement from '../rwp-element.js';
 import RWPRoute from './rwp-route/rwp-route.js';
 
 class RWPRouter extends RWPElement {
-	/** @type {RWPRouter} */
-	static instance;
+	/** @type {RWPRouter[]} */
+	static routers = [];
 
 	/** @type {RWPRoute[]} */
 	_routes = [];
@@ -12,64 +12,74 @@ class RWPRouter extends RWPElement {
 	/** @type {RWPRoute} */
 	_defaultRoute;
 
-	/** @type {HTMLSlotElement} */
-	_root;
-
-	constructor() {
-		super();
-		this.handleLinkClick = this.handleLinkClick.bind(this);
-	}
-
 	/** @override */
 	init() {
-		if (RWPRouter.instance)
-			throw Error('Only single instance of the router is allowed!');
-
 		super.init();
 
-		this._root = this._shadowRoot.querySelector('slot');
-		this._routes = this._root.assignedElements();
-
-		this._defaultRoute = this._routes.find(route => route.hasAttribute('default'));
-
-		document.addEventListener('click', this.handleLinkClick);
-		self.addEventListener('popstate', () => this.route());
-
-		RWPRouter.instance = this;
-	}
-
-	/**
-	 * @param {string} [href=location.pathname]
-	 * @returns {RWPRoute} Matching route;
-	 */
-	route(href = location.pathname) {
-
-		let matchingRoute;
-
-		this._routes.forEach(route => {
-
-			if (route.path.regex && route.path.regex.test(href)) {
-				route.setAttribute('current', 'true');
-				matchingRoute = route;
-			} else {
-				route.setAttribute('current', 'false');
-			}
-		});
-
-		if (!matchingRoute && this._defaultRoute) {
-			this._defaultRoute.setAttribute('current', 'true');
-			return this._defaultRoute;
+		/** Add event listeners only once. */
+		if (RWPRouter.routers.length === 0) {
+			document.addEventListener('click', this);
+			self.addEventListener('popstate', this);
+			self.addEventListener('route', this);
 		}
 
-		return matchingRoute;
+		RWPRouter.routers.push(this);
+	}
+
+	/** @param {Event} event */
+	handleEvent(event) {
+
+		if (event.type === 'click')
+			RWPRouter.handleLinkClick(event);
+
+		else if (event.type === 'popstate' || event.type === 'route')
+			RWPRouter.routers.forEach(router => router.route(event));
+	}
+
+	/** @param {PopStateEvent | CustomEvent} [event] */
+	route(event) {
+
+		/** @type {string} */
+		let href;
+
+		/** @type {RWPRoute} */
+		let matchingRoute;
+
+		if (!event || !event.detail || !event.detail.href)
+			href = location.pathname;
+		else href = event.detail.href;
+
+		for (const route of this._routes) {
+			if (route.path.regex.test(href))
+				matchingRoute = route;
+
+			else route.setAttribute('current', 'false');
+		}
+
+		if (!matchingRoute && this._defaultRoute)
+			matchingRoute = this._defaultRoute;
+
+		matchingRoute.setAttribute('current', 'true');
+	}
+
+	/** @param {RWPRoute} route */
+	addRoute(route) {
+		this._routes.push(route);
+
+		if (route.default) {
+			this._defaultRoute = route;
+			this.route();
+		} else if (route.path.regex.test(location.pathname)) {
+			this.route();
+		}
 	}
 
 	/** @param {MouseEvent} event */
-	handleLinkClick(event) {
+	static handleLinkClick(event) {
 
 		let target;
 
-		if (event.target.tagName === 'A') {
+		if (event.target.nodeName.toLowerCase() === 'a') {
 			target = event.target;
 		} else if (event.target.shadowRoot) {
 			target = RWPRouter.findTargetLink(event);
@@ -82,11 +92,11 @@ class RWPRouter extends RWPElement {
 		event.preventDefault();
 		self.history.pushState({}, href, href);
 
-		this.route(href);
-	}
-
-	get root() {
-		return this._root;
+		self.dispatchEvent(new CustomEvent('route', {
+			detail: {
+				href,
+			}
+		}));
 	}
 
 	/**
@@ -111,16 +121,22 @@ class RWPRouter extends RWPElement {
 		for (const link of links) {
 			boundingRectangle = link.getBoundingClientRect();
 
-			if (clientX > boundingRectangle.left  &&
-				clientX < boundingRectangle.right &&
-				clientY > boundingRectangle.top   &&
-				clientY < boundingRectangle.bottom
-			) {
+			if (this.isInsideElement(boundingRectangle, clientX, clientY))
 				return link;
-			}
 		}
 
 		return null;
+	}
+
+	/**
+	 * @param {DOMRect} boundingRectangle Element's bounding rectangle.
+	 * @param {number} clientX
+	 * @param {number} clientY
+	 * @returns {boolean} `true` if client is inside element's bounding rectangle.
+	 */
+	static isInsideElement(boundingRectangle, clientX, clientY) {
+		return  clientX > boundingRectangle.left && clientX < boundingRectangle.right &&
+			clientY > boundingRectangle.top && clientY < boundingRectangle.bottom;
 	}
 }
 

@@ -11,13 +11,23 @@ class RWPBreadcrumbs extends RWPElement {
 	_container;
 
 	constructor() {
-		super('rwp-breadcrumbs');
+		super();
+		this.setContent = this.setContent.bind(this);
 	}
 
 	/** @override */
 	init() {
 		super.init();
+
 		this._container = this._shadowRoot.querySelector('#breadcrumbs');
+		this.setContent();
+
+		self.addEventListener('route', this.setContent);
+		self.addEventListener('popstate', this.setContent);
+	}
+
+	setContent() {
+		this._container.innerHTML = '';
 
 		const portions = location.pathname.match(
 			RWPBreadcrumbs.LOCATION_PORTIONS_REG_EXP

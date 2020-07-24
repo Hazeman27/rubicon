@@ -12,6 +12,9 @@ class RWPRoute extends RWPElement {
 		`(?<=/:)(${RWPRoute.WORD_REG_EXP_STRING})(?=/)?`, 'g'
 	);
 
+	/** @type {boolean} */
+	_default;
+
 	/** @type {Path} */
 	_path;
 
@@ -37,16 +40,16 @@ class RWPRoute extends RWPElement {
 		this._root = this._shadowRoot.querySelector('slot');
 		this._router = this.parentElement;
 
-		const exact = this.getAttribute('exact');
-		const isDefault = this.hasAttribute('default');
+		if (this._router.nodeName !== 'RWP-ROUTER')
+			throw Error('Route must be inside router element!');
 
-		this._path = RWPRoute.parsePath(
-			this.attributes.getNamedItem('path'),
-			exact ? exact === 'true' : true,
-			isDefault
-		);
+		const ambiguous = this.hasAttribute('ambiguous');
+		this._default = this.hasAttribute('default');
 
+		this._path = RWPRoute.parsePath(this.getAttribute('path'), ambiguous, this._default);
 		this._view = await this.getView();
+
+		this._router.addRoute(this);
 	}
 
 	/** @returns {Promise<DocumentFragment>} */
@@ -94,24 +97,35 @@ class RWPRoute extends RWPElement {
 
 	setViewParams() {
 		const currentParams = location.pathname.match(this._path.regex);
+		const pathnameSlot = this._view.querySelector('slot[name="pathname"]');
 
-		this._path.params.forEach((param, index) => {
-			const slot = this._view.querySelector(`slot[name="${param}"]`);
+		if (currentParams) {
+			this._path.params.forEach((param, index) => {
+				const slot = this._view.querySelector(`slot[name="${param}"]`);
 
-			if (slot)
-				slot.textContent = currentParams[index + 1];
-		});
+				if (slot)
+					slot.textContent = currentParams[index + 1];
+			});
+		}
+
+		if (pathnameSlot) {
+			pathnameSlot.textContent =
+				location.pathname === '/' ?
+					'root' : location.pathname;
+		}
 	}
 
 	setRootContent() {
-		if (this._path.params)
-			this.setViewParams();
-
+		this.setViewParams();
 		this._root.appendChild(this._view.cloneNode(true));
 	}
 
 	clearRootContent() {
 		this._root.innerHTML = '';
+	}
+
+	get default() {
+		return this._default;
 	}
 
 	get path() {
@@ -134,17 +148,21 @@ class RWPRoute extends RWPElement {
 	 */
 
 	/**
-	 * @param {Attr} path
-	 * @param {boolean} exact
+	 * @param {string} path
+	 * @param {boolean} ambiguous
 	 * @param {boolean} isDefault
 	 * @returns {Path}
 	 */
-	static parsePath(path, exact, isDefault) {
+	static parsePath(path, ambiguous, isDefault) {
 
 		if (isDefault) {
 			return {
 				href: null,
-				regex: null,
+				/**
+				 * Regex that does not match anything.
+				 * Reasoning: to avoid checking if `path.regex === null`,
+				 */
+				regex: new RegExp('$.'),
 				params: null,
 			};
 		}
@@ -152,17 +170,17 @@ class RWPRoute extends RWPElement {
 		if (!path)
 			throw Error('Route must include `path` attribute!');
 
-		const trimmedPath = path.value.trim();
+		const trimmedPath = path.trim();
 		const params = trimmedPath.match(RWPRoute.PARAMS_REG_EXP);
 
-		const lead = exact ? '^' : '';
-		const tail = exact ? '$' : '';
+		const lead = ambiguous ? '' : '^';
+		const tail = ambiguous ? '' : '$';
 
 		if (!params) {
 			return {
 				href: trimmedPath,
 				regex: new RegExp(`${lead}${trimmedPath}${tail}`),
-				params: null
+				params: []
 			};
 		}
 
