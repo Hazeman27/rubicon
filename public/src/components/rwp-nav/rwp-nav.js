@@ -77,7 +77,6 @@ class RWPNav extends RWPElement {
 		this._backgroundDimmer.addEventListener('click', this.toggle);
 
 		this.manageEventListeners('add');
-
 		self.addEventListener('resize', this.handleResize);
 
 		this.setContainerAriaHiddenAttribute();
@@ -96,6 +95,9 @@ class RWPNav extends RWPElement {
 		document[method]('touchstart', this.handleTouchStart);
 		document[method]('touchmove', this.handleTouchMove);
 		document[method]('touchend', this.handleTouchEnd);
+
+		self[method]('popstate', this.toggle);
+		self[method]('route', this.toggle);
 
 		this._lastActionOnEventListeners = action;
 	}

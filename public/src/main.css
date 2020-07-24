@@ -3,9 +3,9 @@
 }
 
 :root {
-    --color-dark: #242424;
-    --color-dark-contrast: #121212;
-    --color-light: #ececec;
+    --color-dark: #404244;
+    --color-dark-contrast: #272729;
+    --color-light: #eeeeee;
     --color-light-contrast: white;
     --color-accent-blue: #0B4ECB;
 
@@ -19,7 +19,10 @@
     --side-nav-width: 300px;
     --top-bar-height: 60px;
 
-    --box-shadow-small: 0 1px 2px rgba(0, 0, 0, .16);
+    --box-shadow-color: rgba(0, 0, 0, .08);
+
+    --box-shadow-border-x: 1px 0 var(--box-shadow-color);
+    --box-shadow-border-y: 0 1px var(--box-shadow-color);
 
     --transition-duration-fast: 80ms;
     --transition-duration-medium: 200ms;
@@ -41,7 +44,9 @@ body[data-theme="dark"] {
     --theme-background: var(--color-dark);
     --theme-background-contrast: var(--color-dark-contrast);
 
-    --box-shadow-small: 0 1px 2px rgba(255, 255, 255, .16);
+    --box-shadow-color: rgba(255, 255, 255, .08);
+    --box-shadow-border-x: 1px 0 var(--box-shadow-color);
+    --box-shadow-border-y: 0 1px var(--box-shadow-color);
 }
 
 a,
@@ -74,8 +79,8 @@ select {
 }
 
 select option {
-    color: inherit;
-    background-color: inherit;
+    color: var(--theme-foreground);
+    background-color: var(--theme-background);
 }
 
 abbr {
