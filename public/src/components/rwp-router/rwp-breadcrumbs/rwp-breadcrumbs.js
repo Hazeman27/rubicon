@@ -19,7 +19,7 @@ class RWPBreadcrumbs extends RWPElement {
 	init() {
 		super.init();
 
-		this._container = this._shadowRoot.querySelector('#breadcrumbs');
+		this._container = this.shadowRoot.querySelector('#breadcrumbs');
 		this.setContent();
 
 		self.addEventListener('route', this.setContent);

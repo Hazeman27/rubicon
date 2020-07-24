@@ -7,7 +7,7 @@ import { calcColorDifference } from './rwp-colors.js';
 class RWPElement extends CustomElement {
 	/** @override */
 	init() {
-		this.firstElement = this._shadowRoot.children[0];
+		this.firstElement = this.shadowRoot.children[0];
 		this.setColorBasedOnBackground();
 	}
 

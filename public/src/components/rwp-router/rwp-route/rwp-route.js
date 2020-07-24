@@ -37,10 +37,10 @@ class RWPRoute extends RWPElement {
 	async init() {
 		super.init();
 
-		this._root = this._shadowRoot.querySelector('slot');
+		this._root = this.shadowRoot.querySelector('slot');
 		this._router = this.parentElement;
 
-		if (this._router.nodeName !== 'RWP-ROUTER')
+		if (this._router.nodeName.toLowerCase() !== 'rwp-router')
 			throw Error('Route must be inside router element!');
 
 		const ambiguous = this.hasAttribute('ambiguous');

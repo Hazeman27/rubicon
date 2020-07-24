@@ -9,8 +9,6 @@ import {
 /**
  * `SideNav` - custom element. Implements both native android like top bar and
  * sidebar with full touch control.
- *
- * @todo Add profile page
  */
 class RWPNav extends RWPElement {
 	/** @readonly */
@@ -63,9 +61,9 @@ class RWPNav extends RWPElement {
 	init() {
 		super.init();
 
-		this._container = this._shadowRoot.querySelector('#side-nav');
-		this._toggleButton = this._shadowRoot.querySelector('#toggle-button');
-		this._backgroundDimmer = this._shadowRoot.querySelector('#background-dimmer');
+		this._container = this.shadowRoot.querySelector('#side-nav');
+		this._toggleButton = this.shadowRoot.querySelector('#toggle-button');
+		this._backgroundDimmer = this.shadowRoot.querySelector('#background-dimmer');
 
 		this._width = Number.parseInt(
 			self.getComputedStyle(this._container).width
@@ -77,10 +75,12 @@ class RWPNav extends RWPElement {
 		this._backgroundDimmer.addEventListener('click', this.toggle);
 
 		this.manageEventListeners('add');
+		this.handleResize();
+
 		self.addEventListener('resize', this.handleResize);
 
 		this.setContainerAriaHiddenAttribute();
-		addColorSchemeControls(this._shadowRoot.querySelector('#color-scheme-select'));
+		addColorSchemeControls(this.shadowRoot.querySelector('#color-scheme-select'));
 	}
 
 	/**
