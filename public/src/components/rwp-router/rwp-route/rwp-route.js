@@ -80,6 +80,13 @@ class RWPRoute extends RWPElement {
 			element.remove();
 		});
 
+		const fragmentStyle = document.createElement('style');
+
+		document.head.querySelectorAll('link[rel="stylesheet"]').forEach(link => {
+			fragmentStyle.innerHTML = `${fragmentStyle.innerHTML}@import '${link.href}';\n`;
+		});
+
+		fragment.appendChild(fragmentStyle);
 		return fragment;
 	}
 

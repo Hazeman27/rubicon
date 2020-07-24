@@ -1,4 +1,8 @@
-import { generateFilePathRegExp, extractFilePathInfo } from './core-utils.js';
+import {
+	generateCustomElementName,
+	generateFilePathRegExp,
+	extractFilePathInfo
+} from './core-utils.js';
 
 /** @readonly */
 const STACK_TRACE_REG_EXP = new RegExp(`(?<=${location.origin}).*`, 'g');
@@ -61,30 +65,35 @@ export async function initCustomElement(element, path) {
 
 /**
  * @typedef {object} CustomElementEntry
- * @property {string} name Name of the custom element.
- * @property {CustomElementConstructor} constructor Constructor of the
- * custom element.
+ * @property {CustomElementConstructor} constructor Constructor of the custom element.
+ * @property {string} [name] Name of the custom element. If not specified, it is generated
+ * from constructor's class name, where capital letters are replaced by lower case letters and
+ * separated by `-` symbol (*i.e., kebab-case*). E.g., name for a custom element with
+ * `MyCustomElement` class name would be generated as `my-custom-element`.
  * @property {ElementDefinitionOptions} [options] Definition options for the
  * custom element.
  */
 
-/**
- * Registers single custom element.
- *
- * @param {CustomElementEntry} element Object that contains name, constructor,
- * and definition options of the custom element.
- */
-export function registerCustomElement({ name, constructor, options = {} }) {
+/** @param {CustomElementEntry | CustomElementConstructor} element */
+export function registerCustomElement(element) {
+	let name, constructor, options;
+
+	if (typeof element === 'function') {
+		name = generateCustomElementName(element);
+		constructor = element,
+		options = {};
+	} else {
+		name = element.name || generateCustomElementName(element.constructor);
+		constructor = element.constructor;
+		options = element.options || {};
+	}
+
 	customElements.define(name, constructor, options);
 }
 
-/**
- * @param {CustomElementEntry[]} elements Array of objects where each object
- * contains name, constructor, and definition options of the custom element.
- */
+/** @param {CustomElementConstructor[] | CustomElementConstructor[]} elements */
 export function registerCustomElements(elements) {
 	elements.forEach(registerCustomElement);
-	getCurrentFilePathInfo();
 }
 
 /**

@@ -135,3 +135,26 @@ export function capitalize(string) {
 export function getBasename(fileName) {
 	return fileName.match(/[\w0-9-_]+(?=\.[\w0-9]+$)/)[0];
 }
+
+/** @param {CustomElementConstructor} constructor */
+export function generateCustomElementName(constructor) {
+	return constructor.name
+		.split('')
+		.map((char, index, array) => {
+			const lowerCase = char.toLowerCase();
+			const upperCase = char.toUpperCase();
+
+			const previous = index > 0 ? array[index - 1] : '';
+			const next = index < array.length - 1 ? array[index + 1] : '';
+
+			const isNotFirst = index > 0;
+			const isUpperCase = char === upperCase;
+			const previousIsUpperCase = previous === previous.toUpperCase();
+			const nextIsUpperCase = next === next.toUpperCase();
+
+			if (isNotFirst && isUpperCase && !(previousIsUpperCase && nextIsUpperCase))
+				return `-${lowerCase}`;
+
+			return lowerCase;
+		}).join('');
+}
