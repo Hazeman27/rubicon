@@ -93,7 +93,7 @@ code, kbd {
     font-family: var(--ff-monospace);
 }
 
-main {
+#root {
     padding: 1rem;
     margin-top: var(--top-bar-height);
 }
@@ -103,7 +103,7 @@ main {
         --side-nav-width: 240px;
     }
 
-    main {
+    #root {
         margin-top: calc(var(--top-bar-height) + 1.5rem);
         margin-left: var(--side-nav-width);
     }

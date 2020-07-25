@@ -37,8 +37,11 @@ class RWPElement extends CustomElement {
 	 * Sets element's text color based on contrast with its background color.
 	 */
 	setColorBasedOnBackground() {
-		if (!this.setStyleFromAttribute('bg-color', 'background-color'))
+		if (!this.setStyleFromAttribute('bg-color', 'background-color') &&
+			!this.firstElement.style.backgroundColor
+		) {
 			return;
+		}
 
 		const colorDifference = calcColorDifference(
 			'white', this.firstElement.style.backgroundColor

@@ -1,8 +1,95 @@
 <template>
-	<header id="header">
-		<slot name="header">Embed Header</slot>
-	</header>
-	<main id="content">
-		<slot name="content">Embed Content...</slot>
-	</main>
+	<div id="wrapper">
+		<button id="close-button">
+			<span id="line-1"></span>
+			<span id="line-2"></span>
+		</button>
+		<header id="header">
+			<slot name="header">Embed Header</slot>
+		</header>
+		<main id="content">
+			<slot name="content">Embed Content...</slot>
+		</main>
+	</div>
+	<style>
+		@import '/src/main.css';
+
+		@keyframes fade-in {
+			from {
+				opacity: 0;
+			} to {
+				opacity: 1;
+			}
+		}
+
+		#wrapper {
+			border-radius: var(--border-radius);
+			background-color: var(--theme-background-contrast);
+			z-index: 1000;
+			transition:
+				top var(--transition-duration-medium),
+				left var(--transition-duration-medium),
+				width var(--transition-duration-medium),
+				height var(--transition-duration-medium);
+		}
+
+		#wrapper[data-open] {
+			position: fixed;
+			top: 0 !important;
+			left: 0 !important;
+			width: 100vw !important;
+			height: 100vh !important;
+		}
+
+		#wrapper[data-open] #content,
+		#wrapper[data-open] #close-button {
+			display: initial;
+			animation:
+				fade-in
+				ease-in-out
+				var(--transition-duration-medium)
+				forwards;
+		}
+
+		#content {
+			display: none;
+		}
+
+		#close-button {
+			--size: 32px;
+
+			display: none;
+			position: fixed;
+			right: 2vw;
+			top: 2vw;
+			width: var(--size);
+			height: var(--size);
+			border-radius: 50%;
+			background-color: var(--theme-background);
+			border: none;
+			padding: 0;
+			margin: 0;
+		}
+
+		#close-button #line-1,
+		#close-button #line-2 {
+			display: block;
+			position: absolute;
+			top: 50%;
+			left: 50%;
+			transform-origin: center;
+			width: calc(var(--size) * .5);
+			height: 3px;
+			background-color: var(--theme-foreground);
+			border-radius: var(--border-radius);
+		}
+
+		#close-button #line-1 {
+			transform: translate(-50%, -50%) rotate(45deg);
+		}
+
+		#close-button #line-2 {
+			transform: translate(-50%, -50%) rotate(-45deg);
+		}
+	</style>
 </template>
