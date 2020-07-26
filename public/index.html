@@ -10,23 +10,28 @@
 </head>
 <body dir="ltr">
     <rwp-nav>
+        <rwp-profile class="no-padding" slot="before-links"></rwp-profile>
         <ul slot="links">
             <li><a href="/">Home</a></li>
             <li><a href="/test-1">Test 1</a></li>
             <li><a href="/test-2">Test 2</a></li>
             <li><a href="/test/6">Test Params 6</a></li>
             <li><a href="/test/27/Rubic/Stark">Test Params RS27</a></li>
-            <li>
-                <rwp-router>
-                    <rwp-route default>
-                        <p slot="content">You're on <code><slot name="pathname"></slot></code> view</p>
-                    </rwp-route>
-                    <rwp-route path="/test/:id/:name/:surname">
-                        <p slot="content">Hi, <slot name="name"></slot> <slot name="surname"></slot></p>
-                    </rwp-route>
-                </rwp-router>
-            </li>
         </ul>
+        <section slot="after-links">
+            <h2>Rubic's web platform</h2>
+            <section id="color-scheme">
+                <label for="color-scheme-select">Select color scheme:</label>
+                <select id="color-scheme-select"></select>
+            </section>
+            <details id="contacts">
+                <summary>Contacts</summary>
+                <a href="mailto:tremul27@gmail.com">tremul27@gmail.com</a>
+                <a href="tel:+421950265147">+421 950 265 147</a>
+                <address>B1 32/2, Staré Grunty 53, Bratislava, Slovakia</address>
+                <p>Nizomiddin Toshpulatov © 2020</p>
+            </details>
+        </section>
     </rwp-nav>
     <rwp-breadcrumbs></rwp-breadcrumbs>`
     <main id="root">
@@ -44,7 +49,6 @@
             <rwp-route path="/test/:id" view="test-dynamic.html"></rwp-route>
             <rwp-route path="/test/:id/:name/:surname" view="test-params.html"></rwp-route>
         </rwp-router>
-        <rwp-embed></rwp-embed>
     </main>
 </body>
 </html>

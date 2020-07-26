@@ -12,21 +12,9 @@
         </h2>
     </div>
     <aside id="side-nav" aria-label="main-navigation" aria-hidden="true">
+        <slot id="side-nav-before-links" name="before-links"></slot>
         <slot id="side-nav-links" name="links"></slot>
-        <section>
-            <h2>Rubic's web platform</h2>
-            <section id="color-scheme">
-                <label for="color-scheme-select">Select color scheme:</label>
-                <select id="color-scheme-select"></select>
-            </section>
-            <details id="contacts">
-                <summary>Contacts</summary>
-                <a href="mailto:tremul27@gmail.com">tremul27@gmail.com</a>
-                <a href="tel:+421950265147">+421 950 265 147</a>
-                <address>B1 32/2, Staré Grunty 53, Bratislava, Slovakia</address>
-                <p>Nizomiddin Toshpulatov © 2020</p>
-            </details>
-        </section>
+        <slot id="side-nav-after-links" name="after-links"></slot>
     </aside>
     <div id="background-dimmer"></div>
     <style>
@@ -45,7 +33,6 @@
             top: 0;
             left: 0;
             background-color: var(--theme-background-contrast);
-            padding: 2rem 1rem 4rem;
             width: var(--side-nav-width);
             height: 100vh;
             box-shadow: var(--box-shadow-border-x);
@@ -79,9 +66,29 @@
         #side-nav-links::slotted(ol) {
             display: grid;
             gap: 1rem;
-            padding: 0;
             margin: 0;
             list-style: none;
+        }
+
+        #side-nav-before-links::slotted(*) {
+            padding-top: 2rem;
+        }
+
+        #side-nav-before-links::slotted(*),
+        #side-nav-links::slotted(*),
+        #side-nav-after-links::slotted(*) {
+            padding-left: 1rem;
+            padding-right: 1rem;
+        }
+
+        #side-nav-after-links::slotted(*) {
+            padding-bottom: 4rem;
+        }
+
+        #side-nav-before-links::slotted(.no-padding),
+        #side-nav-links::slotted(.no-padding),
+        #side-nav-after-links::slotted(.no-padding) {
+            padding: 0;
         }
 
         #color-scheme {
@@ -156,8 +163,9 @@
 
         @media only screen and (min-width: 768px) {
             #side-nav {
+                top: var(--top-bar-height);
                 z-index: 99;
-                padding: calc(60px + 2rem) 1rem 4rem;
+                padding-bottom: 4rem;
             }
 
             #toggle-button {
@@ -165,7 +173,6 @@
             }
 
             #top-bar {
-                z-index: 100;
                 grid-template-columns: 1fr;
             }
 

@@ -4,12 +4,12 @@
 			<span id="line-1"></span>
 			<span id="line-2"></span>
 		</button>
-		<header id="header">
-			<slot name="header">Embed Header</slot>
-		</header>
-		<main id="content">
-			<slot name="content">Embed Content...</slot>
-		</main>
+		<slot id="header" name="header">
+			Embed Header
+		</slot>
+		<slot id="content" name="content">
+			Embed Content...
+		</slot>
 	</div>
 	<style>
 		@import '/src/main.css';
@@ -34,7 +34,7 @@
 		}
 
 		#wrapper[data-open] {
-			position: fixed;
+			position: absolute;
 			top: 0 !important;
 			left: 0 !important;
 			width: 100vw !important;
