@@ -91,31 +91,6 @@
             padding: 0;
         }
 
-        #color-scheme {
-            display: grid;
-            gap: 1em;
-            justify-items: start;
-            align-self: end;
-        }
-
-        #contacts {
-            display: flex;
-            flex-direction: column;
-        }
-
-        #contacts summary {
-            margin: 1.5rem 0;
-        }
-
-        #contacts *:not(summary) {
-            font-size: .9em;
-            opacity: .86;
-        }
-
-        #contacts * + * {
-            margin-top: 1rem;
-        }
-
         #top-bar {
             position: fixed;
             top: 0;
@@ -163,9 +138,9 @@
 
         @media only screen and (min-width: 768px) {
             #side-nav {
-                top: var(--top-bar-height);
-                z-index: 99;
-                padding-bottom: 4rem;
+                padding-top: var(--top-bar-height);
+                box-shadow: 1px var(--top-bar-height) var(--box-shadow-color);
+                background-color: transparent;
             }
 
             #toggle-button {

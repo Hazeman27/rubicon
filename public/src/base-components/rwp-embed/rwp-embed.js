@@ -32,6 +32,11 @@ class RWPEmbed extends RWPElement {
 		this._header.addEventListener('click', this.toggle);
 		this._closeButton.addEventListener('click', this.toggle);
 
+		document.addEventListener('keyup', ({ key }) => {
+			if (key === 'Escape' && this._wrapper.hasAttribute(RWPEmbed.OPEN_ATTR))
+				this.toggle();
+		});
+
 		self.addEventListener('resize', this.setPosition);
 		this.setPosition();
 	}
@@ -47,6 +52,7 @@ class RWPEmbed extends RWPElement {
 	}
 
 	setPosition() {
+		this._wrapper.removeAttribute('style');
 		const { top, left, width, height } = this._wrapper.getBoundingClientRect();
 
 		this._wrapper.style.cssText = `

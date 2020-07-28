@@ -88,8 +88,6 @@ export function registerCustomElement(element) {
 		options = element.options || {};
 	}
 
-	console.log(name);
-
 	customElements.define(name, constructor, options);
 }
 

@@ -1,4 +1,12 @@
-import { capitalize } from '../../../core/core-utils.js';
+import { capitalize } from '/src/core/core-utils.js';
+import RWPElement from '../rwp-element.js';
+
+class RWPColorScheme extends RWPElement {
+	/** @override */
+	init() {
+		addColorSchemeControls(this.shadowRoot.querySelector('#color-scheme-select'));
+	}
+}
 
 /**
  * Adds color scheme controls to select tag.
@@ -6,7 +14,7 @@ import { capitalize } from '../../../core/core-utils.js';
  * @typedef {'system' | 'dark' | 'light'} ColorSchemeOptions
  * @param {HTMLSelectElement} selectElement
  */
-export function addColorSchemeControls(selectElement) {
+function addColorSchemeControls(selectElement) {
 	renderOptions(selectElement, setScheme(getCurrentPreference()));
 	attachEventListeners(selectElement);
 }
@@ -108,3 +116,5 @@ function getSystemPreference() {
 function getCurrentPreference() {
 	return localStorage.getItem('preferred-color-scheme') || 'system';
 }
+
+export default RWPColorScheme;

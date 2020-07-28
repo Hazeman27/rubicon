@@ -2,9 +2,11 @@
 	<rwp-embed>
 		<header id="header" slot="header">
 			<img id="avatar" src="https://source.unsplash.com/random/featured/?girl" alt="avatar">
-			<h3 id="name">Rubic Stark</h3>
-			<h5 id="username">@rubicstark</h5>
-			<h5 id="status">online</h5>
+			<section id="user-info">
+				<h3 id="name">Rubic Stark</h3>
+				<h5 id="username">@rubicstark</h5>
+				<h5 id="status">online</h5>
+			</section>
 		</header>
 		<main id="content" slot="content">
 			<ul>
@@ -20,12 +22,10 @@
 
 		#header {
 			display: grid;
-			grid:
-				"avatar name name"
-				"avatar username status";
+			grid-template-columns: auto 1fr;
 			gap: .5em;
 			padding: 1em;
-			background-image: url('https://source.unsplash.com/random/featured/?simple');
+			background-image: url('https://source.unsplash.com/random/featured/?dark');
 			background-size: cover;
 		}
 
@@ -36,12 +36,17 @@
 		#avatar {
 			--size: 64px;
 
-			grid-area: avatar;
 			align-self: center;
 			width: var(--size);
 			height: var(--size);
 			border-radius: 50%;
 			object-fit: cover;
+		}
+
+		#user-info {
+			display: grid;
+			grid: "name name" "username status";
+			gap: inherit; 
 		}
 
 		#name {

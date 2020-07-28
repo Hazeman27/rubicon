@@ -1,10 +1,4 @@
 import RWPElement from '../rwp-element.js';
-import { addColorSchemeControls } from './modules/color-scheme.js';
-import {
-	getTouchDirection,
-	calcTouchAngle,
-	calcTouchDelta,
-} from './modules/touch-helpers.js';
 
 /**
  * `SideNav` - custom element. Implements both native android like top bar and
@@ -80,7 +74,6 @@ class RWPNav extends RWPElement {
 		self.addEventListener('resize', this.handleResize);
 
 		this.setContainerAriaHiddenAttribute();
-		addColorSchemeControls(this.shadowRoot.querySelector('#color-scheme-select'));
 	}
 
 	/**
@@ -106,17 +99,17 @@ class RWPNav extends RWPElement {
 	 * Sets aria-hidden attribute of the container of the side nav to
 	 * value of `this.isHidden` property of this class.
 	 */
-	setContainerAriaHiddenAttribute() {
-		this._container.setAttribute('aria-hidden', this._isHidden);
+	setContainerAriaHiddenAttribute(value = this._isHidden) {
+		this._container.setAttribute('aria-hidden', value);
 	}
 
 	/** @param {number} value */
-	setContainerTranslateX(value) {
+	set containerTranslateX(value) {
 		this._container.style.transform = `translateX(${value}px)`;
 	}
 
 	/** @param {number} value */
-	setBackgroundDimmerOpacity(value) {
+	set backgroundDimmerOpacity(value) {
 		this._backgroundDimmer.style.opacity = value;
 	}
 
@@ -210,25 +203,24 @@ class RWPNav extends RWPElement {
 		this._touchData.currentX = touches[0].clientX;
 		this._touchData.currentY = touches[0].clientY;
 
-		if (calcTouchAngle(this._touchData) < RWPNav.TOUCH_ANGLE_THRESHOLD) {
+		if (RWPNav.calcTouchAngle(this._touchData) < RWPNav.TOUCH_ANGLE_THRESHOLD) {
 			this._touchData.currentX = 0;
 			this._touchData.currentY = 0;
 			return;
 		}
 
-		const direction = getTouchDirection(this._touchData);
+		const direction = RWPNav.getTouchDirection(this._touchData);
 
 		if ((!this._isHidden && direction >= 0) ||
 			(this._isHidden && direction < 0))
 			return;
 
-		const [deltaX] = calcTouchDelta(this._touchData);
+		const [deltaX] = RWPNav.calcTouchDelta(this._touchData);
 
 		this.offsetContainerTranslateX(deltaX);
 
-		this.setBackgroundDimmerOpacity(
-			this._backgroundDimmerOpacity + Math.abs(deltaX / this._width) * direction
-		);
+		this.backgroundDimmerOpacity =
+			this._backgroundDimmerOpacity + Math.abs(deltaX / this._width) * direction;
 	}
 
 	/** @param {TouchEvent} event */
@@ -238,21 +230,69 @@ class RWPNav extends RWPElement {
 			return;
 
 		this.toggleAnimating(this._container, this._backgroundDimmer);
-		const touchDelta = calcTouchDelta(this._touchData)[0];
+		const touchDelta = RWPNav.calcTouchDelta(this._touchData)[0];
 
 		if ((!this._isHidden && touchDelta > (this._width * -1) / 2) ||
 			(this._isHidden && touchDelta < this._width / 2)) {
 
 			if (this._isHidden) {
-				this.setContainerTranslateX(0 - this._width);
-				this.setBackgroundDimmerOpacity(0);
+				this.containerTranslateX = 0 - this._width;
+				this.backgroundDimmerOpacity = 0;
 			} else {
-				this.setContainerTranslateX(0);
-				this.setBackgroundDimmerOpacity(1);
+				this.containerTranslateX = 0;
+				this.backgroundDimmerOpacity = 1;
 			}
 		}
 
 		else this.toggle();
+	}
+
+	/**
+	 * @typedef {object} TouchData object that contains relevant touch data.
+	 * @property {number} currentX
+	 * @property {number} currentY
+	 * @property {number} startX
+	 * @property {number} startY
+	 */
+
+	/**
+	 * Returns direction of the ongoing touch.
+	 * - **-1** if touch direction is to the left;
+	 * - **1** if touch direction is to the right;
+	 * - **0** otherwise;
+	 *
+	 * @param {TouchData} touchData
+	 * @returns { -1 | 1 | 0 } direction of the ongoing touch.
+	 */
+	static getTouchDirection({ startX, currentX }) {
+
+		if (startX > currentX) return -1;
+		if (startX < currentX) return 1;
+
+		return 0;
+	}
+
+	/**
+	 * @param {TouchData} touchData
+	 * @returns {number[]}
+	 */
+	static calcTouchDelta({ startX, startY, currentX, currentY }) {
+		return [currentX - startX, currentY - startY];
+	}
+
+	/**
+	 * @param {TouchData} touchData
+	 * @returns {number} cosine of the touch angle.
+	 */
+	static calcTouchAngle(touchData) {
+
+		const [deltaX, deltaY] = this.calcTouchDelta(touchData);
+
+		const touchVector = Math.sqrt(
+			Math.pow(deltaX, 2) + Math.pow(deltaY, 2)
+		);
+
+		return Math.abs(deltaX) / touchVector;
 	}
 }
 

@@ -804,8 +804,8 @@ export function calcColorBrightness(r, g, b) {
  * Calculates two colors contrast difference.
  * @see https://www.w3.org/TR/AERT/#color-contrast
  *
- * @param {WebColor} foregroundColor
- * @param {WebColor} backgroundColor
+ * @param {WebColor | string} foregroundColor
+ * @param {WebColor | string} backgroundColor
  * @returns {DifferenceInfo | null} `DifferenceInfo` object. If its `difference` property
  * is higher than 500 then its `isGood` property is set to `true`.
  */
@@ -824,4 +824,55 @@ export function calcColorDifference(foregroundColor, backgroundColor) {
 		difference,
 		isGood: difference > 500
 	};
+}
+
+/**
+ * Calculates average color from `ImageData` object.
+ *
+ * Conversion from RGBA to RGB:
+ * @see https://en.wikipedia.org/wiki/Alpha_compositing#Alpha_blending
+ *
+ * Source => Target = (BGColor + Source) =
+ * Target.R = ((1 - Source.A) * BGColor.R) + (Source.A * Source.R)
+ * Target.G = ((1 - Source.A) * BGColor.G) + (Source.A * Source.G)
+ * Target.B = ((1 - Source.A) * BGColor.B) + (Source.A * Source.B)
+ *
+ * @param {ImageData} imageData
+ * @param {WebColor | string} backgroundColor
+ * @returns {number[] | null} rgb array: [r, g, b].
+ */
+export function calcAverageColorFromImageData(imageData, backgroundColor) {
+	if (!imageData) return null;
+
+	let r = 0;
+	let g = 0;
+	let b = 0;
+	let a = 0;
+
+	const bg = getColorRGB(backgroundColor);
+
+	if (bg === null) return null;
+
+	const length = imageData.data.length;
+	const pixelsCount = length / 4;
+
+	for (let i = 0; i < length; i += 4) {
+		r += imageData.data[i];
+		g += imageData.data[i + 1];
+		b += imageData.data[i + 2];
+		a += imageData.data[i + 3] / 255;
+	}
+
+	r = r / (pixelsCount / 8) | 0;
+	g = g / (pixelsCount / 8) | 0;
+	b = b / (pixelsCount / 8) | 0;
+	a = a / (pixelsCount / 8) | 0;
+
+	console.log(r, g, b, a, pixelsCount);
+
+	return [
+		((1 - a) * bg[0]) + (a * r),
+		((1 - a) * bg[1]) + (a * g),
+		((1 - a) * bg[2]) + (a * b)
+	];
 }
