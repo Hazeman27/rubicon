@@ -868,8 +868,6 @@ export function calcAverageColorFromImageData(imageData, backgroundColor) {
 	b = b / (pixelsCount / 8) | 0;
 	a = a / (pixelsCount / 8) | 0;
 
-	console.log(r, g, b, a, pixelsCount);
-
 	return [
 		((1 - a) * bg[0]) + (a * r),
 		((1 - a) * bg[1]) + (a * g),

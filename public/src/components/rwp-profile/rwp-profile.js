@@ -50,8 +50,6 @@ class RWPProfile extends RWPElement {
 			} else {
 				this._userInfo.style.color = 'white';
 			}
-
-			console.log(this._userInfo);
 		});
 	}
 
