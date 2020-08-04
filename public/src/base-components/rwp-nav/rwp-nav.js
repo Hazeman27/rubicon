@@ -150,12 +150,17 @@ class RWPNav extends RWPElement {
 		this.setContainerAriaHiddenAttribute();
 	}
 
-	/** @param {HTMLElement} element */
-	// toggleButtonPressed(element) {
-	// 	if (!element)
-	// 		return false;
-	// 	return element.closest('rwp-nav') !== null;
-	// }
+	/**
+	 * @param {number} clientX
+	 * @param {number} clientY
+	 */
+	toggleButtonPressed(clientX, clientY) {
+		const element = this.shadowRoot.elementFromPoint(clientX, clientY);
+
+		if (element)
+			return element.closest('#toggle-button') !== null;
+		return false;
+	}
 
 	/** @param {KeyboardEvent} event */
 	handleKeyUp({ key }) {
@@ -184,18 +189,26 @@ class RWPNav extends RWPElement {
 
 	/** @param {TouchEvent} event */
 	handleTouchStart({ touches }) {
+		const { clientX, clientY } = touches[0];
 
-		this._touchData.startX = touches[0].clientX;
-		this._touchData.startY = touches[0].clientY;
+		this._touchData.startX = clientX;
+		this._touchData.startY = clientY;
+
+		if (this.toggleButtonPressed(clientX, clientY))
+			return;
 
 		this.toggleAnimating(this._container, this._backgroundDimmer);
 	}
 
 	/** @param {TouchEvent} event */
 	handleTouchMove({ touches }) {
+		const { clientX, clientY } = touches[0];
 
-		this._touchData.currentX = touches[0].clientX;
-		this._touchData.currentY = touches[0].clientY;
+		this._touchData.currentX = clientX;
+		this._touchData.currentY = clientY;
+
+		if (this.toggleButtonPressed(clientX, clientY))
+			return;
 
 		if (RWPNav.calcTouchAngle(this._touchData) < RWPNav.TOUCH_ANGLE_THRESHOLD) {
 			this._touchData.currentX = 0;
@@ -205,8 +218,7 @@ class RWPNav extends RWPElement {
 
 		const direction = RWPNav.getTouchDirection(this._touchData);
 
-		if ((!this._isHidden && direction >= 0) ||
-			(this._isHidden && direction < 0))
+		if ((!this._isHidden && direction >= 0) || (this._isHidden && direction < 0))
 			return;
 
 		const [deltaX] = RWPNav.calcTouchDelta(this._touchData);
@@ -219,6 +231,9 @@ class RWPNav extends RWPElement {
 
 	/** @param {TouchEvent} event */
 	handleTouchEnd() {
+
+		if (this.toggleButtonPressed(this._touchData.startX, this._touchData.startY))
+			return;
 
 		this.toggleAnimating(this._container, this._backgroundDimmer);
 		const touchDelta = RWPNav.calcTouchDelta(this._touchData)[0];
