@@ -151,11 +151,11 @@ class RWPNav extends RWPElement {
 	}
 
 	/** @param {HTMLElement} element */
-	toggleButtonPressed(element) {
-		if (!element)
-			return false;
-		return element.closest('rwp-nav') !== null;
-	}
+	// toggleButtonPressed(element) {
+	// 	if (!element)
+	// 		return false;
+	// 	return element.closest('rwp-nav') !== null;
+	// }
 
 	/** @param {KeyboardEvent} event */
 	handleKeyUp({ key }) {
@@ -183,10 +183,7 @@ class RWPNav extends RWPElement {
 	}
 
 	/** @param {TouchEvent} event */
-	handleTouchStart({ target, touches }) {
-
-		if (this.toggleButtonPressed(target))
-			return;
+	handleTouchStart({ touches }) {
 
 		this._touchData.startX = touches[0].clientX;
 		this._touchData.startY = touches[0].clientY;
@@ -195,10 +192,7 @@ class RWPNav extends RWPElement {
 	}
 
 	/** @param {TouchEvent} event */
-	handleTouchMove({ target, touches }) {
-
-		if (this.toggleButtonPressed(target))
-			return;
+	handleTouchMove({ touches }) {
 
 		this._touchData.currentX = touches[0].clientX;
 		this._touchData.currentY = touches[0].clientY;
@@ -224,10 +218,7 @@ class RWPNav extends RWPElement {
 	}
 
 	/** @param {TouchEvent} event */
-	handleTouchEnd({ target }) {
-
-		if (this.toggleButtonPressed(target))
-			return;
+	handleTouchEnd() {
 
 		this.toggleAnimating(this._container, this._backgroundDimmer);
 		const touchDelta = RWPNav.calcTouchDelta(this._touchData)[0];

@@ -5,9 +5,12 @@ import { calcColorDifference } from './rwp-colors.js';
  * Base RWP element.
  */
 class RWPElement extends CustomElement {
+	/** @type {HTMLElement} */
+	_firstElement;
+
 	/** @override */
 	init() {
-		this.firstElement = this.shadowRoot.children[0];
+		this._firstElement = this.shadowRoot.children[0];
 		this.setColorBasedOnBackground();
 	}
 
@@ -26,7 +29,7 @@ class RWPElement extends CustomElement {
 		const attribute = this.attributes.getNamedItem(attributeName);
 
 		if (attribute) {
-			this.firstElement.style[styleProperty] = attribute.value;
+			this._firstElement.style[styleProperty] = attribute.value;
 			return attribute.value;
 		}
 
@@ -38,19 +41,19 @@ class RWPElement extends CustomElement {
 	 */
 	setColorBasedOnBackground() {
 		if (!this.setStyleFromAttribute('bg-color', 'background-color') &&
-			!this.firstElement.style.backgroundColor
+			!this._firstElement.style.backgroundColor
 		) {
 			return;
 		}
 
 		const colorDifference = calcColorDifference(
-			'white', this.firstElement.style.backgroundColor
+			'white', this._firstElement.style.backgroundColor
 		);
 
 		if (colorDifference.isGood) {
-			this.firstElement.style.color = 'white';
+			this._firstElement.style.setProperty('color', 'white', 'important');
 		} else {
-			this.firstElement.style.color = 'black';
+			this._firstElement.style.setProperty('color', 'black', 'important');
 		}
 	}
 }

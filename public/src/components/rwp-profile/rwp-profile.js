@@ -46,9 +46,9 @@ class RWPProfile extends RWPElement {
 			);
 
 			if (colorDifference.isGood) {
-				this._userInfo.style.color = 'black';
+				this._userInfo.style.setProperty('color', 'black', 'important');
 			} else {
-				this._userInfo.style.color = 'white';
+				this._userInfo.style.setProperty('color', 'white', 'important');
 			}
 		});
 	}
