@@ -35,7 +35,6 @@
 
 		#wrapper[data-open] {
 			position: absolute;
-			border-radius: var(--border-radius);
 			top: 0 !important;
 			left: 0 !important;
 			width: 100vw !important;
@@ -66,15 +65,15 @@
 
 		#close-button {
 			--size: 32px;
+			--offset: 1rem;
 
 			display: none;
 			position: absolute;
-			right: 1.25vw;
-			top: 1.25vw;
+			right: var(--offset);
+			top: var(--offset);
 			width: var(--size);
 			height: var(--size);
-			border-radius: 50%;
-			background-color: var(--theme-background);
+			background-color: transparent;
 			border: none;
 			padding: 0;
 			margin: 0;
@@ -90,7 +89,7 @@
 			transform-origin: center;
 			width: calc(var(--size) * .5);
 			height: 3px;
-			background-color: var(--theme-foreground);
+			background-color: var(--theme-background);
 			border-radius: var(--border-radius);
 		}
 

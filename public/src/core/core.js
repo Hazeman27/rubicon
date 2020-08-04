@@ -69,7 +69,8 @@ export async function initCustomElement(element, path) {
  * @property {string} [name] Name of the custom element. If not specified, it is generated
  * from constructor's class name, where capital letters are replaced by lower case letters and
  * separated by `-` symbol (*i.e., kebab-case*). E.g., name for a custom element with
- * `MyCustomElement` class name would be generated as `my-custom-element`.
+ * `MyCustomElement` class name would be generated as `my-custom-element`; custom element with
+ * `ABBRElement` class name would receive `abbr-element` generated name.
  * @property {ElementDefinitionOptions} [options] Definition options for the
  * custom element.
  */

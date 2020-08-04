@@ -185,7 +185,7 @@ class RWPNav extends RWPElement {
 	/** @param {TouchEvent} event */
 	handleTouchStart({ target, touches }) {
 
-		if (this._isHidden && this.toggleButtonPressed(target))
+		if (this.toggleButtonPressed(target))
 			return;
 
 		this._touchData.startX = touches[0].clientX;
@@ -197,7 +197,7 @@ class RWPNav extends RWPElement {
 	/** @param {TouchEvent} event */
 	handleTouchMove({ target, touches }) {
 
-		if (this._isHidden && this.toggleButtonPressed(target))
+		if (this.toggleButtonPressed(target))
 			return;
 
 		this._touchData.currentX = touches[0].clientX;
@@ -226,7 +226,7 @@ class RWPNav extends RWPElement {
 	/** @param {TouchEvent} event */
 	handleTouchEnd({ target }) {
 
-		if (this._isHidden && this.toggleButtonPressed(target))
+		if (this.toggleButtonPressed(target))
 			return;
 
 		this.toggleAnimating(this._container, this._backgroundDimmer);

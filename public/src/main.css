@@ -80,7 +80,7 @@ select {
     font-family: inherit;
     color: inherit;
     background-color: transparent;
-    border: none;
+    border: 1px solid var(--theme-foreground);
     padding: .28em .64em;
     border-radius: var(--border-radius);
 }
