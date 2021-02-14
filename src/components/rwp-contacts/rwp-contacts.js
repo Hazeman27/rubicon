@@ -1,5 +1,11 @@
-import RWPElement from '/src/base-components/rwp-element.js';
+import { initCustomElement } from '../../core/core.js';
 
-class RWPContacts extends RWPElement {}
+
+class RWPContacts extends HTMLElement {
+  constructor() {
+    super();
+    initCustomElement(this);
+  }
+}
 
 export default RWPContacts;

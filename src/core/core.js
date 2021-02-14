@@ -43,18 +43,6 @@ export function attachShadowRoot(element, template) {
 }
 
 /**
- * Fetches custom element's template and attaches shadow root.
- *
- * @param {HTMLElement} element
- * @param {string} path Absolute path to the element's template file.
- * @returns {Promise<ShadowRoot>}
- */
-export async function initCustomElement(element, path) {
-	const template = await fetchTemplate(path);
-	return attachShadowRoot(element, template);
-}
-
-/**
  * @typedef {object} CustomElementEntry
  * @property {CustomElementConstructor} constructor
  * @property {string} [name] Name of the custom element. If not specified, it is generated from constructor's class name, where capital letters are replaced by lower case letters and separated by `-` symbol (*i.e., kebab-case*). E.g., name for a custom element with `MyCustomElement` class name would be generated as `my-custom-element`; custom element with `ABBRElement` class name would receive `abbr-element` generated name.
@@ -110,45 +98,19 @@ export function getCurrentFilePathInfo(fileName) {
 }
 
 /**
- * Custom Element base class. Fetches element's template and attaches `shadowRoot`.
- * If no template path is specified, sets current file's directory as the template path.
+ * Fetches custom element's template and attaches shadow root.
  *
- * @abstract
+ * @param {HTMLElement} element
+ * @param {string} templatePath Absolute path to the element's template file.
  */
-export class CustomElement extends HTMLElement {
-	/** @type {ShadowRoot} */
-	_shadowRoot;
+export async function initCustomElement(element, templatePath) {
+  const filePathInfo = getCurrentFilePathInfo(element.nodeName.toLowerCase());
+  const path = templatePath || `${filePathInfo.fullPathNoExtension}.html`;
 
-	/** @type {FilePathInfo} */
-	_filePathInfo;
+	const template = await fetchTemplate(path);
 
-	/** @param {string} [templatePath] Absolute path to the template. */
-	constructor(templatePath) {
-		super();
-
-		this._filePathInfo = getCurrentFilePathInfo(this.nodeName.toLowerCase());
-		let path = templatePath || `${this._filePathInfo.fullPathNoExtension}.html`;
-
-		initCustomElement(this, path)
-			.then(shadowRoot => {
-				this._shadowRoot = shadowRoot;
-				this.init();
-			});
-	}
-
-	/**
-	 * Initiliazises custom element's logic. Called after template fetching.
-	 * @abstract
-	 */
-	init() {
-		throw new Error('Must be implemented by subclass!');
-	}
-
-	get filePathInfo() {
-		return this._filePathInfo;
-	}
-
-	get shadowRoot() {
-		return this._shadowRoot;
-	}
+	return {
+    shadowRoot: attachShadowRoot(element, template),
+    filePathInfo,
+  };
 }

@@ -1,22 +1,26 @@
-import RWPElement from '../../base-components/rwp-element.js';
 import {
 	calcAverageColorFromImageData,
 	calcColorDifference
 } from '../../base-components/rwp-colors.js';
+import { initCustomElement } from '../../core/core.js';
 
-class RWPProfile extends RWPElement {
+
+class RWPProfile extends HTMLElement {
 	/** @type {HTMLElement} */
 	_header;
 
 	/** @type {HTMLElement} */
 	_userInfo;
 
-	/** @override */
-	init() {
-		this._header = this.shadowRoot.querySelector('#header');
-		this._userInfo = this.shadowRoot.querySelector('#user-info');
+	constructor() {
+    super();
 
-		this.setUserInfoTextColor();
+    initCustomElement(this).then(() => {
+      this._header = this.shadowRoot.querySelector('#header');
+      this._userInfo = this.shadowRoot.querySelector('#user-info');
+
+      this.setUserInfoTextColor();
+    });
 	}
 
 	setUserInfoTextColor() {

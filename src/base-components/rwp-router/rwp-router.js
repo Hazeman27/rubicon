@@ -1,8 +1,8 @@
-import RWPElement from '../rwp-element.js';
+import { initCustomElement } from '../../core/core.js';
 import RWPRoute from './rwp-route/rwp-route.js';
 
 
-class RWPRouter extends RWPElement {
+class RWPRouter extends HTMLElement {
 	/** @type {RWPRouter[]} */
 	static routers = [];
 
@@ -13,17 +13,19 @@ class RWPRouter extends RWPElement {
 	_defaultRoute;
 
 	/** @override */
-	init() {
-		super.init();
+	constructor() {
+		super();
 
-		/** Add event listeners only once. */
-		if (RWPRouter.routers.length === 0) {
-			document.addEventListener('click', this);
-			self.addEventListener('popstate', this);
-			self.addEventListener('route', this);
-		}
+    initCustomElement(this).then(() => {
+      /** Add event listeners only once. */
+      if (RWPRouter.routers.length === 0) {
+        document.addEventListener('click', this);
+        self.addEventListener('popstate', this);
+        self.addEventListener('route', this);
+      }
 
-		RWPRouter.routers.push(this);
+      RWPRouter.routers.push(this);
+    });
 	}
 
 	/** @param {Event} event */

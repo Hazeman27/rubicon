@@ -1,11 +1,14 @@
 import { capitalize } from '/src/core/core-utils.js';
-import RWPElement from '../rwp-element.js';
+import { initCustomElement } from '../../core/core.js';
 
 
-class RWPColorScheme extends RWPElement {
-	/** @override */
-	init() {
-		addColorSchemeControls(this.shadowRoot.querySelector('#color-scheme-select'));
+class RWPColorScheme extends HTMLElement {
+	constructor() {
+    super();
+
+    initCustomElement(this).then(() => {
+		  addColorSchemeControls(this.shadowRoot.querySelector('#color-scheme-select'));
+    });
 	}
 }
 

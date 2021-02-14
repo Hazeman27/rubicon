@@ -1,8 +1,8 @@
-import RWPElement from '../../rwp-element.js';
+import { initCustomElement } from '../../../core/core.js';
 import RWPRoute from '../rwp-route/rwp-route.js';
 
 
-class RWPBreadcrumbs extends RWPElement {
+class RWPBreadcrumbs extends HTMLElement {
 	/** @readonly */
 	static LOCATION_PORTIONS_REG_EXP = new RegExp(
 		`(?<=/)${RWPRoute.WORD_REG_EXP_STRING}`, 'g'
@@ -13,18 +13,15 @@ class RWPBreadcrumbs extends RWPElement {
 
 	constructor() {
 		super();
-		this.setContent = this.setContent.bind(this);
-	}
 
-	/** @override */
-	init() {
-		super.init();
+    initCustomElement(this).then(() => {
+      this.setContent = this.setContent.bind(this);
+      this._container = this.shadowRoot.querySelector('#breadcrumbs');
+      this.setContent();
 
-		this._container = this.shadowRoot.querySelector('#breadcrumbs');
-		this.setContent();
-
-		self.addEventListener('route', this.setContent);
-		self.addEventListener('popstate', this.setContent);
+      self.addEventListener('route', this.setContent);
+      self.addEventListener('popstate', this.setContent);
+    });
 	}
 
 	setContent() {

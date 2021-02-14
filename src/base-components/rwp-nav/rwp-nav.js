@@ -1,11 +1,11 @@
-import RWPElement from '../rwp-element.js';
+import { initCustomElement } from '../../core/core.js';
 
 
 /**
  * `SideNav` - custom element. Implements both native android like top bar and
  * sidebar with full touch control.
  */
-class RWPNav extends RWPElement {
+class RWPNav extends HTMLElement {
 	/** @readonly */
 	static BREAKPOINT = 768;
 
@@ -47,39 +47,36 @@ class RWPNav extends RWPElement {
 	constructor() {
 		super();
 
-		this.toggle = this.toggle.bind(this);
-		this.handleKeyUp = this.handleKeyUp.bind(this);
-		this.handleResize = this.handleResize.bind(this);
-		this.handleTouchStart = this.handleTouchStart.bind(this);
-		this.handleTouchMove = this.handleTouchMove.bind(this);
-		this.handleTouchEnd = this.handleTouchEnd.bind(this);
-	}
+    initCustomElement(this).then(() => {
+      this.toggle = this.toggle.bind(this);
+      this.handleKeyUp = this.handleKeyUp.bind(this);
+      this.handleResize = this.handleResize.bind(this);
+      this.handleTouchStart = this.handleTouchStart.bind(this);
+      this.handleTouchMove = this.handleTouchMove.bind(this);
+      this.handleTouchEnd = this.handleTouchEnd.bind(this);
 
-	/** @override */
-	init() {
-		super.init();
+      this._container = this.shadowRoot.querySelector('#side-nav');
+      this._toggleButton = this.shadowRoot.querySelector('#toggle-button');
+      this._sideNavToggleButton = this.shadowRoot.querySelector('#side-nav-toggle-button');
+      this._backgroundDimmer = this.shadowRoot.querySelector('#background-dimmer');
 
-		this._container = this.shadowRoot.querySelector('#side-nav');
-		this._toggleButton = this.shadowRoot.querySelector('#toggle-button');
-		this._sideNavToggleButton = this.shadowRoot.querySelector('#side-nav-toggle-button');
-		this._backgroundDimmer = this.shadowRoot.querySelector('#background-dimmer');
+      this._width = Number.parseInt(
+        self.getComputedStyle(this._container).width
+      );
 
-		this._width = Number.parseInt(
-			self.getComputedStyle(this._container).width
-		);
+      this._isHidden = self.innerWidth < RWPNav.BREAKPOINT;
 
-		this._isHidden = self.innerWidth < RWPNav.BREAKPOINT;
+      this._toggleButton.addEventListener('click', this.toggle);
+      this._sideNavToggleButton.addEventListener('click', this.toggle);
+      this._backgroundDimmer.addEventListener('click', this.toggle);
 
-		this._toggleButton.addEventListener('click', this.toggle);
-		this._sideNavToggleButton.addEventListener('click', this.toggle);
-		this._backgroundDimmer.addEventListener('click', this.toggle);
+      this.manageEventListeners('add');
+      this.handleResize();
 
-		this.manageEventListeners('add');
-		this.handleResize();
+      self.addEventListener('resize', this.handleResize);
 
-		self.addEventListener('resize', this.handleResize);
-
-		this.setContainerAriaHiddenAttribute();
+      this.setContainerAriaHiddenAttribute();
+    });
 	}
 
 	/**

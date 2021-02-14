@@ -1,7 +1,7 @@
-import RWPElement from '../rwp-element.js';
+import { initCustomElement } from '../../core/core.js';
 
 
-class RWPEmbed extends RWPElement {
+class RWPEmbed extends HTMLElement {
 	/** @readonly */
 	static OPEN_ATTR = 'data-open';
 
@@ -19,27 +19,27 @@ class RWPEmbed extends RWPElement {
 
 	constructor() {
 		super();
-		this.toggle = this.toggle.bind(this);
-		this.setPosition = this.setPosition.bind(this);
-	}
 
-	/** @override */
-	init() {
-		this._wrapper = this.shadowRoot.querySelector('#wrapper');
-		this._header = this.shadowRoot.querySelector('#header');
-		this._content = this.shadowRoot.querySelector('#content');
-		this._closeButton = this.shadowRoot.querySelector('#close-button');
+    initCustomElement(this).then(() => {
+      this.toggle = this.toggle.bind(this);
+      this.setPosition = this.setPosition.bind(this);
 
-		this._header.addEventListener('click', this.toggle);
-		this._closeButton.addEventListener('click', this.toggle);
+      this._wrapper = this.shadowRoot.querySelector('#wrapper');
+      this._header = this.shadowRoot.querySelector('#header');
+      this._content = this.shadowRoot.querySelector('#content');
+      this._closeButton = this.shadowRoot.querySelector('#close-button');
 
-		document.addEventListener('keyup', ({ key }) => {
-			if (key === 'Escape' && this._wrapper.hasAttribute(RWPEmbed.OPEN_ATTR))
-				this.toggle();
-		});
+      this._header.addEventListener('click', this.toggle);
+      this._closeButton.addEventListener('click', this.toggle);
 
-		self.addEventListener('resize', this.setPosition);
-		this.setPosition();
+      document.addEventListener('keyup', ({ key }) => {
+        if (key === 'Escape' && this._wrapper.hasAttribute(RWPEmbed.OPEN_ATTR))
+          this.toggle();
+      });
+
+      self.addEventListener('resize', this.setPosition);
+      this.setPosition();
+    });
 	}
 
 	toggle() {

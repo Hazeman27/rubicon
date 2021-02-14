@@ -1,9 +1,7 @@
-import { fetchTemplate } from '../../../core/core.js';
-import RWPElement from '../../rwp-element.js';
-// eslint-disable-next-line no-unused-vars
+import { fetchTemplate, initCustomElement } from '../../../core/core.js';
 import RWPRouter from '../rwp-router.js';
 
-class RWPRoute extends RWPElement {
+class RWPRoute extends HTMLElement {
 	/** @readonly */
 	static WORD_REG_EXP_STRING = '[\\w0-9-_]+';
 
@@ -33,23 +31,24 @@ class RWPRoute extends RWPElement {
 	/** @type {HTMLSlotElement} */
 	_root;
 
-	/** @override */
-	async init() {
-		super.init();
+	constructor() {
+		super();
 
-		this._root = this.shadowRoot.querySelector('slot');
-		this._router = this.parentElement;
+    initCustomElement(this).then(async () => {
+      this._root = this.shadowRoot.querySelector('slot');
+      this._router = this.parentElement;
 
-		if (this._router.nodeName.toLowerCase() !== 'rwp-router')
-			throw Error('Route must be inside router element!');
+      if (this._router.nodeName.toLowerCase() !== 'rwp-router')
+        throw Error('Route must be inside router element!');
 
-		const ambiguous = this.hasAttribute('ambiguous');
-		this._default = this.hasAttribute('default');
+      const ambiguous = this.hasAttribute('ambiguous');
+      this._default = this.hasAttribute('default');
 
-		this._path = RWPRoute.parsePath(this.getAttribute('path'), ambiguous, this._default);
-		this._view = await this.getView();
+      this._path = RWPRoute.parsePath(this.getAttribute('path'), ambiguous, this._default);
+      this._view = await this.getView();
 
-		this._router.addRoute(this);
+      this._router.addRoute(this);
+    });
 	}
 
 	/** @returns {Promise<DocumentFragment>} */
@@ -115,11 +114,8 @@ class RWPRoute extends RWPElement {
 			});
 		}
 
-		if (pathnameSlot) {
-			pathnameSlot.textContent =
-				location.pathname === '/' ?
-					'root' : location.pathname;
-		}
+		if (pathnameSlot)
+			pathnameSlot.textContent = location.pathname === '/' ? 'root' : location.pathname;
 	}
 
 	setRootContent() {
