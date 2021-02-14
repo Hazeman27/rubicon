@@ -1,20 +1,20 @@
 export class FilePathRegExp extends RegExp {
-	/** @type {string[]} */
-	_extensions = [];
+  /** @type {string[]} */
+  _extensions = [];
 
-	/**
-	 * @param {string} pattern The text of the regular expression.
-	 * @param {string[]} extensions Array of extensions to match. Without preceding dot. For example, `js, ts` are valid arguments while `.js, .ts` are not.
-	 * @param {string} [flags] If specified, flags is a string that contains the flags to add.
-	 */
-	constructor(pattern, extensions, flags) {
-		super(pattern, flags);
-		this._extensions = extensions;
-	}
+  /**
+   * @param {string} pattern The text of the regular expression.
+   * @param {string[]} extensions Array of extensions to match. Without preceding dot. For example, `js, ts` are valid arguments while `.js, .ts` are not.
+   * @param {string} [flags] If specified, flags is a string that contains the flags to add.
+   */
+  constructor(pattern, extensions, flags) {
+    super(pattern, flags);
+    this._extensions = extensions;
+  }
 
-	get extensions() {
-		return this._extensions;
-	}
+  get extensions() {
+    return this._extensions;
+  }
 }
 
 /**
@@ -23,7 +23,7 @@ export class FilePathRegExp extends RegExp {
  * @returns {string[]}
  */
 function _createExtRegExpString(extensions, separator = '|') {
-	return extensions.map(extension => `.${extension}`).join(separator);
+  return extensions.map(extension => `.${extension}`).join(separator);
 }
 
 /**
@@ -40,16 +40,21 @@ function _createExtRegExpString(extensions, separator = '|') {
  * @returns {FilePathRegExp}
  */
 export function generateFilePathRegExp(
-	extensions,
-	{ flags = '', backslash = false } = { flags: '', backslash: false }
+  extensions, {
+    flags = '',
+    backslash = false
+  } = {
+    flags: '',
+    backslash: false
+  }
 ) {
-	const slash = backslash ? '\\' : '/';
+  const slash = backslash ? '\\' : '/';
 
-	return new FilePathRegExp(
-		`(.*${slash})?(.+)(?=(${_createExtRegExpString(extensions)}))`,
-		extensions,
-		flags
-	);
+  return new FilePathRegExp(
+    `(.*${slash})?(.+)(?=(${_createExtRegExpString(extensions)}))`,
+    extensions,
+    flags
+  );
 }
 
 /**
@@ -67,20 +72,20 @@ export function generateFilePathRegExp(
  * @returns {FilePathInfo}
  */
 export function extractFilePathInfo(path, regex) {
-	const [
-		fullPathNoExtension,
-		directoryPath,
-		fileName,
-		fileExtension
-	] = path.match(regex);
+  const [
+    fullPathNoExtension,
+    directoryPath,
+    fileName,
+    fileExtension
+  ] = path.match(regex);
 
-	return {
-		fullPath: `${fullPathNoExtension}${fileExtension}`,
-		fullPathNoExtension,
-		directoryPath,
-		fileName,
-		fileExtension
-	};
+  return {
+    fullPath: `${fullPathNoExtension}${fileExtension}`,
+    fullPathNoExtension,
+    directoryPath,
+    fileName,
+    fileExtension
+  };
 }
 
 /**
@@ -88,11 +93,11 @@ export function extractFilePathInfo(path, regex) {
  * @param {string} receivedExtension
  */
 export function generateFileExtErrorMessages(expectedExtensions, receivedExtension) {
-	const extensions = _createExtRegExpString(expectedExtensions, ' or ');
-	return [
-		'Incorrect file extension!',
-		`Expected ${extensions}, but got ${receivedExtension}.`
-	];
+  const extensions = _createExtRegExpString(expectedExtensions, ' or ');
+  return [
+    'Incorrect file extension!',
+    `Expected ${extensions}, but got ${receivedExtension}.`
+  ];
 }
 
 /**
@@ -103,47 +108,47 @@ export function generateFileExtErrorMessages(expectedExtensions, receivedExtensi
  * @param {(...any)} [logger=console.error] Logging function.
  */
 export function logFileExtErrorMessages(
-	path,
-	regex,
-	logger = console.error
+  path,
+  regex,
+  logger = console.error
 ) {
-	const pathInfo = extractFilePathInfo(path, regex);
+  const pathInfo = extractFilePathInfo(path, regex);
 
-	generateFileExtErrorMessages(
-		regex.extensions,
-		pathInfo.fileExtension
-	).forEach(logger);
+  generateFileExtErrorMessages(
+    regex.extensions,
+    pathInfo.fileExtension
+  ).forEach(logger);
 }
 
 /** @param {string} string */
 export function capitalize(string) {
-	return `${string[0].toUpperCase()}${string.slice(1)}`;
+  return `${string[0].toUpperCase()}${string.slice(1)}`;
 }
 
 /** @param {string} fileName */
 export function getBasename(fileName) {
-	return fileName.match(/[\w0-9-_]+(?=\.[\w0-9]+$)/)[0];
+  return fileName.match(/[\w0-9-_]+(?=\.[\w0-9]+$)/)[0];
 }
 
 /** @param {CustomElementConstructor} constructor */
 export function generateCustomElementName(constructor) {
-	return constructor.name
-		.split('')
-		.map((char, index, array) => {
-			const lowerCase = char.toLowerCase();
-			const upperCase = char.toUpperCase();
+  return constructor.name
+    .split('')
+    .map((char, index, array) => {
+      const lowerCase = char.toLowerCase();
+      const upperCase = char.toUpperCase();
 
-			const previous = index > 0 ? array[index - 1] : '';
-			const next = index < array.length - 1 ? array[index + 1] : '';
+      const previous = index > 0 ? array[index - 1] : '';
+      const next = index < array.length - 1 ? array[index + 1] : '';
 
-			const isNotFirst = index > 0;
-			const isUpperCase = char === upperCase;
-			const previousIsUpperCase = previous === previous.toUpperCase();
-			const nextIsUpperCase = next === next.toUpperCase();
+      const isNotFirst = index > 0;
+      const isUpperCase = char === upperCase;
+      const previousIsUpperCase = previous === previous.toUpperCase();
+      const nextIsUpperCase = next === next.toUpperCase();
 
-			if (isNotFirst && isUpperCase && !(previousIsUpperCase && nextIsUpperCase))
-				return `-${lowerCase}`;
+      if (isNotFirst && isUpperCase && !(previousIsUpperCase && nextIsUpperCase))
+        return `-${lowerCase}`;
 
-			return lowerCase;
-		}).join('');
+      return lowerCase;
+    }).join('');
 }

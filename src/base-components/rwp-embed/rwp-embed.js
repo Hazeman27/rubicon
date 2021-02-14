@@ -2,23 +2,23 @@ import { initCustomElement } from '../../core/core.js';
 
 
 class RWPEmbed extends HTMLElement {
-	/** @readonly */
-	static OPEN_ATTR = 'data-open';
+  /** @readonly */
+  static OPEN_ATTR = 'data-open';
 
-	/** @type {HTMLElement} */
-	_wrapper;
+  /** @type {HTMLElement} */
+  _wrapper;
 
-	/** @type {HTMLElement} */
-	_header;
+  /** @type {HTMLElement} */
+  _header;
 
-	/** @type {HTMLElement} */
-	_content;
+  /** @type {HTMLElement} */
+  _content;
 
-	/** @type {HTMLButtonElement} */
-	_closeButton;
+  /** @type {HTMLButtonElement} */
+  _closeButton;
 
-	constructor() {
-		super();
+  constructor() {
+    super();
 
     initCustomElement(this).then(() => {
       this.toggle = this.toggle.bind(this);
@@ -32,7 +32,9 @@ class RWPEmbed extends HTMLElement {
       this._header.addEventListener('click', this.toggle);
       this._closeButton.addEventListener('click', this.toggle);
 
-      document.addEventListener('keyup', ({ key }) => {
+      document.addEventListener('keyup', ({
+        key
+      }) => {
         if (key === 'Escape' && this._wrapper.hasAttribute(RWPEmbed.OPEN_ATTR))
           this.toggle();
       });
@@ -40,29 +42,34 @@ class RWPEmbed extends HTMLElement {
       self.addEventListener('resize', this.setPosition);
       this.setPosition();
     });
-	}
+  }
 
-	toggle() {
-		this._wrapper.toggleAttribute(RWPEmbed.OPEN_ATTR);
+  toggle() {
+    this._wrapper.toggleAttribute(RWPEmbed.OPEN_ATTR);
 
-		if (this._wrapper.hasAttribute(RWPEmbed.OPEN_ATTR)) {
-			this._header.removeEventListener('click', this.toggle);
-		} else {
-			this._header.addEventListener('click', this.toggle);
-		}
-	}
+    if (this._wrapper.hasAttribute(RWPEmbed.OPEN_ATTR)) {
+      this._header.removeEventListener('click', this.toggle);
+    } else {
+      this._header.addEventListener('click', this.toggle);
+    }
+  }
 
-	setPosition() {
-		this._wrapper.removeAttribute('style');
-		const { top, left, width, height } = this._wrapper.getBoundingClientRect();
+  setPosition() {
+    this._wrapper.removeAttribute('style');
+    const {
+      top,
+      left,
+      width,
+      height
+    } = this._wrapper.getBoundingClientRect();
 
-		this._wrapper.style.cssText = `
+    this._wrapper.style.cssText = `
 			top: ${top}px;
 			left: ${left}px;
 			width: ${width}px;
 			height: ${height}px;
 		`;
-	}
+  }
 }
 
 export default RWPEmbed;

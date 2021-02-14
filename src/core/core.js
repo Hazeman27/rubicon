@@ -1,7 +1,7 @@
 import {
-	generateCustomElementName,
-	generateFilePathRegExp,
-	extractFilePathInfo
+  generateCustomElementName,
+  generateFilePathRegExp,
+  extractFilePathInfo
 } from './core-utils.js';
 
 /** @readonly */
@@ -15,19 +15,19 @@ const JS_TS_REG_EXP = generateFilePathRegExp(['js', 'ts']);
  * @returns {Promise<DocumentFragment> | Promise<null>} Content of the template element.
  */
 export async function fetchTemplate(path) {
-	try {
-		const response = await fetch(path);
-		const text = await response.text();
+  try {
+    const response = await fetch(path);
+    const text = await response.text();
 
-		const document = new DOMParser().parseFromString(text, 'text/html');
-		const template = document.querySelector('template');
+    const document = new DOMParser().parseFromString(text, 'text/html');
+    const template = document.querySelector('template');
 
-		return template.content.cloneNode(true);
+    return template.content.cloneNode(true);
 
-	} catch (error) {
-		console.error(error, path);
-		return null;
-	}
+  } catch (error) {
+    console.error(error, path);
+    return null;
+  }
 }
 
 /**
@@ -36,10 +36,12 @@ export async function fetchTemplate(path) {
  * @returns {ShadowRoot}
  */
 export function attachShadowRoot(element, template) {
-	const shadowRoot = element.attachShadow({ mode: 'open' });
-	shadowRoot.appendChild(template);
+  const shadowRoot = element.attachShadow({
+    mode: 'open'
+  });
+  shadowRoot.appendChild(template);
 
-	return shadowRoot;
+  return shadowRoot;
 }
 
 /**
@@ -51,24 +53,24 @@ export function attachShadowRoot(element, template) {
 
 /** @param {CustomElementEntry | CustomElementConstructor} element */
 export function registerCustomElement(element) {
-	let name, constructor, options;
+  let name, constructor, options;
 
-	if (typeof element === 'function') {
-		name = generateCustomElementName(element);
-		constructor = element,
-		options = {};
-	} else {
-		name = element.name || generateCustomElementName(element.constructor);
-		constructor = element.constructor;
-		options = element.options || {};
-	}
+  if (typeof element === 'function') {
+    name = generateCustomElementName(element);
+    constructor = element,
+      options = {};
+  } else {
+    name = element.name || generateCustomElementName(element.constructor);
+    constructor = element.constructor;
+    options = element.options || {};
+  }
 
-	customElements.define(name, constructor, options);
+  customElements.define(name, constructor, options);
 }
 
 /** @param {CustomElementConstructor[] | CustomElementConstructor[]} elements */
 export function registerCustomElements(elements) {
-	elements.forEach(registerCustomElement);
+  elements.forEach(registerCustomElement);
 }
 
 /**
@@ -90,11 +92,11 @@ export function registerCustomElements(elements) {
  * @returns {FilePathInfo}
  */
 export function getCurrentFilePathInfo(fileName) {
-	const error = new Error();
-	const matches = error.stack.match(STACK_TRACE_REG_EXP);
+  const error = new Error();
+  const matches = error.stack.match(STACK_TRACE_REG_EXP);
 
-	return matches.map(entry => extractFilePathInfo(entry, JS_TS_REG_EXP))
-		.find(pathInfo => pathInfo.fileName === fileName);
+  return matches.map(entry => extractFilePathInfo(entry, JS_TS_REG_EXP))
+    .find(pathInfo => pathInfo.fileName === fileName);
 }
 
 /**
@@ -107,9 +109,9 @@ export async function initCustomElement(element, templatePath) {
   const filePathInfo = getCurrentFilePathInfo(element.nodeName.toLowerCase());
   const path = templatePath || `${filePathInfo.fullPathNoExtension}.html`;
 
-	const template = await fetchTemplate(path);
+  const template = await fetchTemplate(path);
 
-	return {
+  return {
     shadowRoot: attachShadowRoot(element, template),
     filePathInfo,
   };

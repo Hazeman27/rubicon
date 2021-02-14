@@ -10,13 +10,13 @@ import RWPProfile from './components/rwp-profile/rwp-profile.js';
 import { registerCustomElements } from './core/core.js';
 
 registerCustomElements([
-	RWPNav,
-	RWPEmbed,
-	RWPBreadcrumbs,
-	RWPButton,
-	RWPColorScheme,
-	RWPRouter,
-	RWPRoute,
-	RWPContacts,
-	RWPProfile
+  RWPNav,
+  RWPEmbed,
+  RWPBreadcrumbs,
+  RWPButton,
+  RWPColorScheme,
+  RWPRouter,
+  RWPRoute,
+  RWPContacts,
+  RWPProfile
 ]);

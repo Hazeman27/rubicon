@@ -3,13 +3,13 @@ import { initCustomElement } from '../../core/core.js';
 
 
 class RWPColorScheme extends HTMLElement {
-	constructor() {
+  constructor() {
     super();
 
     initCustomElement(this).then(() => {
-		  addColorSchemeControls(this.shadowRoot.querySelector('#color-scheme-select'));
+      addColorSchemeControls(this.shadowRoot.querySelector('#color-scheme-select'));
     });
-	}
+  }
 }
 
 /**
@@ -19,22 +19,22 @@ class RWPColorScheme extends HTMLElement {
  * @param {HTMLSelectElement} selectElement
  */
 function addColorSchemeControls(selectElement) {
-	renderOptions(selectElement, setScheme(getCurrentPreference()));
-	attachEventListeners(selectElement);
+  renderOptions(selectElement, setScheme(getCurrentPreference()));
+  attachEventListeners(selectElement);
 }
 
 /** @param {HTMLSelectElement} selectElement  */
 function attachEventListeners(selectElement) {
 
-	selectElement.addEventListener('change', () => {
-		setScheme(selectElement.options.item(selectElement.options.selectedIndex).value);
-	});
+  selectElement.addEventListener('change', () => {
+    setScheme(selectElement.options.item(selectElement.options.selectedIndex).value);
+  });
 
-	self.matchMedia('(prefers-color-scheme: dark)')
-		.addEventListener('change', () => {
-			if (getCurrentPreference() === 'system')
-				setScheme('system');
-		});
+  self.matchMedia('(prefers-color-scheme: dark)')
+    .addEventListener('change', () => {
+      if (getCurrentPreference() === 'system')
+        setScheme('system');
+    });
 }
 
 /**
@@ -45,11 +45,11 @@ function attachEventListeners(selectElement) {
  */
 function renderOptions(selectElement, currentScheme) {
 
-	selectElement.appendChild(createSchemeOption(currentScheme));
+  selectElement.appendChild(createSchemeOption(currentScheme));
 
-	getSchemeOptions(currentScheme).forEach(schemeOption => {
-		selectElement.appendChild(createSchemeOption(schemeOption));
-	});
+  getSchemeOptions(currentScheme).forEach(schemeOption => {
+    selectElement.appendChild(createSchemeOption(schemeOption));
+  });
 }
 
 /**
@@ -63,10 +63,10 @@ function renderOptions(selectElement, currentScheme) {
  * @returns {ColorSchemeOption}
  */
 function createSchemeOption(scheme) {
-	return Object.assign(document.createElement('option'), {
-		textContent: capitalize(scheme),
-		value: scheme
-	});
+  return Object.assign(document.createElement('option'), {
+    textContent: capitalize(scheme),
+    value: scheme
+  });
 }
 
 /**
@@ -77,13 +77,13 @@ function createSchemeOption(scheme) {
  */
 function getSchemeOptions(currentScheme) {
 
-	if (currentScheme === 'system')
-		return ['dark', 'light'];
+  if (currentScheme === 'system')
+    return ['dark', 'light'];
 
-	if (currentScheme === 'dark')
-		return ['light', 'system'];
+  if (currentScheme === 'dark')
+    return ['light', 'system'];
 
-	return ['dark', 'system'];
+  return ['dark', 'system'];
 }
 
 /**
@@ -95,14 +95,14 @@ function getSchemeOptions(currentScheme) {
  */
 function setScheme(scheme) {
 
-	if (scheme === 'system') {
-		document.body.setAttribute('data-theme', getSystemPreference());
-	} else {
-		document.body.setAttribute('data-theme', scheme);
-	}
+  if (scheme === 'system') {
+    document.body.setAttribute('data-theme', getSystemPreference());
+  } else {
+    document.body.setAttribute('data-theme', scheme);
+  }
 
-	localStorage.setItem('preferred-color-scheme', scheme);
-	return scheme;
+  localStorage.setItem('preferred-color-scheme', scheme);
+  return scheme;
 }
 
 /**
@@ -110,7 +110,7 @@ function setScheme(scheme) {
  * @returns {ColorSchemeOptions}
  */
 function getSystemPreference() {
-	return self.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  return self.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
 }
 
 /**
@@ -118,7 +118,7 @@ function getSystemPreference() {
  * @returns {ColorSchemeOptions}
  */
 function getCurrentPreference() {
-	return localStorage.getItem('preferred-color-scheme') || 'system';
+  return localStorage.getItem('preferred-color-scheme') || 'system';
 }
 
 export default RWPColorScheme;
