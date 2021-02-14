@@ -1,4 +1,2 @@
-.vscode
-.firebase
 node_modules
-*.log
+*.code-workspace
