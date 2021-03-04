@@ -1,31 +1,16 @@
-import { capitalize } from '/src/core/core-utils.js';
-import { initCustomElement } from '../../core/core.js';
+import { capitalize } from '../core/core-utils.js';
 
 
-class RWPColorScheme extends HTMLElement {
-  constructor() {
-    super();
-
-    initCustomElement(this).then(() => {
-      addColorSchemeControls(this.shadowRoot.querySelector('#color-scheme-select'));
-    });
-  }
+export function RWPColorScheme({ shadowRoot }) {
+  addColorSchemeControls(shadowRoot.querySelector('#color-scheme-select'));
 }
 
-/**
- * Adds color scheme controls to select tag.
- *
- * @typedef {'system' | 'dark' | 'light'} ColorSchemeOptions
- * @param {HTMLSelectElement} selectElement
- */
 function addColorSchemeControls(selectElement) {
   renderOptions(selectElement, setScheme(getCurrentPreference()));
   attachEventListeners(selectElement);
 }
 
-/** @param {HTMLSelectElement} selectElement  */
 function attachEventListeners(selectElement) {
-
   selectElement.addEventListener('change', () => {
     setScheme(selectElement.options.item(selectElement.options.selectedIndex).value);
   });
@@ -37,14 +22,7 @@ function attachEventListeners(selectElement) {
     });
 }
 
-/**
- * Renders `option` tags inside select element based on the current color scheme.
- *
- * @param {HTMLSelectElement} selectElement
- * @param {ColorSchemeOptions} currentScheme
- */
 function renderOptions(selectElement, currentScheme) {
-
   selectElement.appendChild(createSchemeOption(currentScheme));
 
   getSchemeOptions(currentScheme).forEach(schemeOption => {
@@ -52,16 +30,6 @@ function renderOptions(selectElement, currentScheme) {
   });
 }
 
-/**
- * Creates object that contains data for the color scheme's `option` tag.
- *
- * @typedef {object} ColorSchemeOption
- * @property {string} textContent
- * @property {ColorSchemeOptions} value
- *
- * @param {ColorSchemeOptions} scheme
- * @returns {ColorSchemeOption}
- */
 function createSchemeOption(scheme) {
   return Object.assign(document.createElement('option'), {
     textContent: capitalize(scheme),
@@ -69,14 +37,7 @@ function createSchemeOption(scheme) {
   });
 }
 
-/**
- * Returns array of two other available color schemes beside the current one.
- *
- * @param {ColorSchemeOptions} currentScheme
- * @returns {ColorSchemeOptions[]}
- */
 function getSchemeOptions(currentScheme) {
-
   if (currentScheme === 'system')
     return ['dark', 'light'];
 
@@ -86,15 +47,7 @@ function getSchemeOptions(currentScheme) {
   return ['dark', 'system'];
 }
 
-/**
- * Sets `data-theme` attribute of the body tag and updates `preferred-color-scheme`
- * entry of the `localStorage` to the specified theme.
- *
- * @param {ColorSchemeOptions} scheme
- * @returns {ColorSchemeOptions} same parameter.
- */
 function setScheme(scheme) {
-
   if (scheme === 'system') {
     document.body.setAttribute('data-theme', getSystemPreference());
   } else {
@@ -105,20 +58,31 @@ function setScheme(scheme) {
   return scheme;
 }
 
-/**
- * Returns current color scheme preference.
- * @returns {ColorSchemeOptions}
- */
 function getSystemPreference() {
   return self.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
 }
 
-/**
- * Returns `preferred-color-scheme` entry of the `localStorage`.
- * @returns {ColorSchemeOptions}
- */
 function getCurrentPreference() {
   return localStorage.getItem('preferred-color-scheme') || 'system';
 }
 
-export default RWPColorScheme;
+export const template = `
+  <template>
+    <section id="color-scheme">
+      <label for="color-scheme-select">
+        <span name="label">Select color scheme:</span>
+      </label>
+      <select id="color-scheme-select"></select>
+    </section>
+    <style>
+      @import './styles/main.css';
+
+      #color-scheme {
+        display: grid;
+        gap: 1em;
+        justify-items: start;
+        align-self: end;
+      }
+    </style>
+  </template>
+`;

@@ -1,19 +1,18 @@
-import {
-  generateCustomElementName,
-  generateFilePathRegExp,
-  extractFilePathInfo
-} from './core-utils.js';
+import { generateCustomElementName } from './core-utils.js';
 
-/** @readonly */
-const STACK_TRACE_REG_EXP = new RegExp(`(?<=${location.origin}).*`, 'g');
+export class CustomElement extends HTMLElement {
+  constructor(templateValue) {
+    super();
+    const shadowRoot =this.attachShadow({ mode: 'open' });
 
-/** @readonly */
-const JS_TS_REG_EXP = generateFilePathRegExp(['js', 'ts']);
+    shadowRoot.appendChild(
+      typeof templateValue === 'string'
+        ? (template(templateValue) ?? document.createElement('template'))
+        : templateValue
+    );
+  }
+}
 
-/**
- * @param {string} path Absolute path to HTML file with single template element.
- * @returns {Promise<DocumentFragment> | Promise<null>} Content of the template element.
- */
 export async function fetchTemplate(path) {
   try {
     const response = await fetch(path);
@@ -22,7 +21,7 @@ export async function fetchTemplate(path) {
     const document = new DOMParser().parseFromString(text, 'text/html');
     const template = document.querySelector('template');
 
-    return template.content.cloneNode(true);
+    return template?.content.cloneNode(true);
 
   } catch (error) {
     console.error(error, path);
@@ -30,89 +29,64 @@ export async function fetchTemplate(path) {
   }
 }
 
-/**
- * @param {HTMLElement} element
- * @param {HTMLTemplateElement} template
- * @returns {ShadowRoot}
- */
-export function attachShadowRoot(element, template) {
-  const shadowRoot = element.attachShadow({
-    mode: 'open'
-  });
-  shadowRoot.appendChild(template);
+export function template(string) {
+  const document = new DOMParser().parseFromString(string.toString(), 'text/html');
+  const template = document.querySelector('template');
 
-  return shadowRoot;
+  return template?.content.cloneNode(true) ?? null;
 }
 
-/**
- * @typedef {object} CustomElementEntry
- * @property {CustomElementConstructor} constructor
- * @property {string} [name] Name of the custom element. If not specified, it is generated from constructor's class name, where capital letters are replaced by lower case letters and separated by `-` symbol (*i.e., kebab-case*). E.g., name for a custom element with `MyCustomElement` class name would be generated as `my-custom-element`; custom element with `ABBRElement` class name would receive `abbr-element` generated name.
- * @property {ElementDefinitionOptions} [options] Definition options for the custom element.
- */
-
-/** @param {CustomElementEntry | CustomElementConstructor} element */
-export function registerCustomElement(element) {
-  let name, constructor, options;
-
-  if (typeof element === 'function') {
-    name = generateCustomElementName(element);
-    constructor = element,
-      options = {};
-  } else {
-    name = element.name || generateCustomElementName(element.constructor);
-    constructor = element.constructor;
-    options = element.options || {};
+export function registerCustomElement(definition) {
+  if (typeof definition === 'function') {
+    customElements.define(generateCustomElementName(definition.name), definition);
+    return;
   }
 
-  customElements.define(name, constructor, options);
+  if (definition.elementConstructor) {
+    customElements.define(
+      definition.name ?? generateCustomElementName(definition.elementConstructor.name),
+      definition.elementConstructor,
+      definition.options,
+    )
+  }
+
+  let initFunction = definition.init;
+
+  if (!initFunction) {
+    const initFunctionKey = Object.keys(definition).find((key) => {
+      return typeof definition[key] === 'function';
+    });
+
+    if (initFunctionKey) initFunction = definition[initFunctionKey];
+  }
+
+  if (!initFunction) {
+    throw Error(`
+      Custom element must have an initializer function! Provide a non-anonymous
+      function as an export for your custom element definition, alternatively
+      define and export  a class that extends CustomElement abstract class. You
+      can also export a function named 'init' as an initializer function.
+    `);
+  }
+
+  const name = definition.name ?? generateCustomElementName(initFunction.name);
+
+  class NewCustomElement extends CustomElement {
+    constructor() {
+      super((
+        typeof definition.template === 'string'
+          ? template(definition.template)
+          : definition.template?.() 
+        ) ?? document.createElement('template')
+      );
+
+      initFunction(this);
+    }
+  }
+
+  customElements.define(name, NewCustomElement, definition.options);
 }
 
-/** @param {CustomElementConstructor[] | CustomElementConstructor[]} elements */
-export function registerCustomElements(elements) {
-  elements.forEach(registerCustomElement);
-}
-
-/**
- * @typedef {object} FilePathInfo
- * @property {string} fullPath
- * @property {string} fullPathNoExtension
- * @property {string} directoryPath
- * @property {string} fileName
- * @property {string} fileExtension
- */
-
-/**
- * Gets information about the current file path. Idea comes from this stackoverflow post:
- * @see https://stackoverflow.com/a/19807441;
- *
- * Uses error's stack trace to extract file path information.
- *
- * @param {string} fileName
- * @returns {FilePathInfo}
- */
-export function getCurrentFilePathInfo(fileName) {
-  const error = new Error();
-  const matches = error.stack.match(STACK_TRACE_REG_EXP);
-
-  return matches.map(entry => extractFilePathInfo(entry, JS_TS_REG_EXP))
-    .find(pathInfo => pathInfo.fileName === fileName);
-}
-
-/**
- * Fetches custom element's template and attaches shadow root.
- *
- * @param {HTMLElement} element
- * @param {string} templatePath Absolute path to the element's template file.
- */
-export async function initCustomElement(element, templatePath) {
-  const filePathInfo = getCurrentFilePathInfo(element.nodeName.toLowerCase());
-  const path = templatePath || `${filePathInfo.fullPathNoExtension}.html`;
-
-  const template = await fetchTemplate(path);
-
-  return {
-    shadowRoot: attachShadowRoot(element, template),
-    filePathInfo,
-  };
+export function registerCustomElements(definitions) {
+  definitions.forEach(registerCustomElement);
 }

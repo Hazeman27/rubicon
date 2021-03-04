@@ -1,36 +1,26 @@
-import { initCustomElement } from '../../core/core.js';
-import RWPRoute from './rwp-route/rwp-route.js';
+import { CustomElement } from '../../core/core.js';
+import { RWPRoute } from './rwp-route.js';
 
 
-class RWPRouter extends HTMLElement {
-  /** @type {RWPRouter[]} */
+export class RWPRouter extends CustomElement {
   static routers = [];
 
-  /** @type {RWPRoute[]} */
   _routes = [];
-
-  /** @type {RWPRoute} */
   _defaultRoute;
 
-  /** @override */
   constructor() {
-    super();
+    super('<template><slot></slot></template>');
 
-    initCustomElement(this).then(() => {
-      /** Add event listeners only once. */
-      if (RWPRouter.routers.length === 0) {
-        document.addEventListener('click', this);
-        self.addEventListener('popstate', this);
-        self.addEventListener('route', this);
-      }
+    if (RWPRouter.routers.length === 0) {
+      document.addEventListener('click', this);
+      self.addEventListener('popstate', this);
+      self.addEventListener('route', this);
+    }
 
-      RWPRouter.routers.push(this);
-    });
+    RWPRouter.routers.push(this);
   }
 
-  /** @param {Event} event */
   handleEvent(event) {
-
     if (event.type === 'click')
       RWPRouter.handleLinkClick(event);
 
@@ -38,17 +28,11 @@ class RWPRouter extends HTMLElement {
       RWPRouter.routers.forEach(router => router.route(event));
   }
 
-  /** @param {PopStateEvent | CustomEvent} [event] */
   route(event) {
-
-    /** @type {string} */
     let href;
+    let matchingRoute = null;
 
-    /** @type {RWPRoute} */
-    let matchingRoute;
-
-    if (!event || !event.detail || !event.detail.href)
-      href = location.pathname;
+    if (!event?.detail?.href) href = location.pathname;
     else href = event.detail.href;
 
     for (const route of this._routes) {
@@ -61,10 +45,9 @@ class RWPRouter extends HTMLElement {
     if (!matchingRoute && this._defaultRoute)
       matchingRoute = this._defaultRoute;
 
-    matchingRoute.setAttribute('current', 'true');
+    matchingRoute?.setAttribute('current', 'true');
   }
 
-  /** @param {RWPRoute} route */
   addRoute(route) {
     this._routes.push(route);
 
@@ -76,16 +59,11 @@ class RWPRouter extends HTMLElement {
     }
   }
 
-  /** @param {MouseEvent} event */
   static handleLinkClick(event) {
+    let target = event.target;
 
-    let target;
-
-    if (event.target.nodeName.toLowerCase() === 'a') {
-      target = event.target;
-    } else if (event.target.shadowRoot) {
+    if (target?.nodeName.toLowerCase() !== 'a')
       target = RWPRouter.findTargetLink(event);
-    }
 
     if (!target) return;
 
@@ -101,26 +79,16 @@ class RWPRouter extends HTMLElement {
     }));
   }
 
-  /**
-   * Looks for the link element of the event target. Returns link element if
-   * found, `null` otherwise.
-   *
-   * @param {MouseEvent} event
-   * @returns {HTMLLinkElement | null}
-   */
   static findTargetLink(event) {
-    /** @type {ShadowRoot} */
-    const shadowRoot = event.target.shadowRoot;
+    const shadowRoot = event.target?.shadowRoot;
 
-    const links = shadowRoot.querySelectorAll('a');
+    const links = shadowRoot?.querySelectorAll('a') ?? [];
 
     if (links.length === 0)
       return null;
 
-    const {
-      clientX,
-      clientY
-    } = event;
+    const { clientX, clientY } = event;
+
     let boundingRectangle;
 
     for (const link of links) {
@@ -133,16 +101,8 @@ class RWPRouter extends HTMLElement {
     return null;
   }
 
-  /**
-   * @param {DOMRect} boundingRectangle Element's bounding rectangle.
-   * @param {number} clientX
-   * @param {number} clientY
-   * @returns {boolean} `true` if client is inside element's bounding rectangle.
-   */
   static isInsideElement(boundingRectangle, clientX, clientY) {
     return clientX > boundingRectangle.left && clientX < boundingRectangle.right &&
       clientY > boundingRectangle.top && clientY < boundingRectangle.bottom;
   }
 }
-
-export default RWPRouter;

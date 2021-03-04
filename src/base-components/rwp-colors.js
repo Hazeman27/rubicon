@@ -1,14 +1,4 @@
-/**
- * @typedef {object} ColorInfo
- * @property {string} hex
- * @property {[red: number, green: number, blue: number]} rgb
- */
-
-/**
- * @readonly Named web colors with their hexadecimal
- * and rgb values.
- */
-export const COLORS = {
+export const WEB_COLORS = {
   pink: {
     hex: '#ffc0cb',
     rgb: [255, 192, 203]
@@ -571,38 +561,37 @@ export const COLORS = {
   }
 };
 
-/** @typedef {keyof typeof COLORS} WebColor */
-
-/**
- * @param {WebColor} color
- * @returns {ColorInfo}
- */
 export function getColorInfo(color) {
-  return COLORS[color];
+  return WEB_COLORS[color || ''];
 }
 
-/**
- * @param {WebColor | string} color
- * @returns {[red: number, green: number, blue: number] | null}
- */
 export function getColorRGB(color) {
-  if (getColorInfo(color))
-    return COLORS[color].rgb;
+  const colorInfo = getColorInfo(color);
+
+  if (colorInfo)
+    return colorInfo.rgb;
+
+  const logError = () => {
+    console.error('Incorrect hexadecimal color format!');
+    console.error('Expected formats: #AAA or #RRGGBB. But got', color ?? '<empty>');
+    return null;
+  }
+
+  if (!color) return logError();
 
   if (color.includes('#')) {
     let r, g, b;
 
-    if (color.length !== 4 && color.length !== 7) {
-      console.error('Incorrect hexadecimal color format!');
-      console.error('Expected formats: #AAA or #RRGGBB. But got', color);
-      return null;
-    }
+    if (color.length !== 4 && color.length !== 7)
+      return logError();
 
-    if (color.length === 4 &&
+    if (
+      color.length === 4 &&
       color.charAt(1) === color.charAt(2) &&
-      color.charAt(2) === color.charAt(3)) {
+      color.charAt(2) === color.charAt(3)
+    ) {
       r = Number.parseInt(color.substring(1, 3), 16);
-      g = b;
+      g = r;
       b = g;
     } else {
       r = Number.parseInt(color.substring(1, 3), 16);
@@ -614,32 +603,21 @@ export function getColorRGB(color) {
   }
 
   if (color.includes('rgb')) {
-    return color.split(',')
+    const rgb = color.split(',')
       .map(portion => portion.replace(/[^0-9]/g, ''))
       .map(Number);
+
+    if (rgb.length === 3)
+      return rgb;
+    return logError();
   }
 
-  console.error('Incorrect color format!');
-  console.error(
-    'Expected #AAA, #RRGGBB, or rgba(255, 255, 255) format. But got',
-    color
-  );
-
-  return null;
+  return logError();
 }
 
 /**
- * @typedef {object} BrightnessInfo
- * @property {number} brightness
- * @property {boolean} isGood
- */
-/**
  * Calculates brightness of the color.
  * @see https://www.w3.org/TR/AERT/#color-contrast
- *
- * @param {number} r value of the red channel, in range from 0 to 255
- * @param {number} g value of the green channel, in range from 0 to 255
- * @param {number} b value of the blue channel, in range from 0 to 255
  * @returns {BrightnessInfo} Contrast value. If value is higher than 125 then
  * brightness is good.
  */
@@ -652,16 +630,8 @@ export function calcColorBrightness(r, g, b) {
 }
 
 /**
- * @typedef {object} DifferenceInfo
- * @property {number} difference
- * @property {boolean} isGood
- */
-/**
  * Calculates two colors contrast difference.
  * @see https://www.w3.org/TR/AERT/#color-contrast
- *
- * @param {WebColor | string} foregroundColor
- * @param {WebColor | string} backgroundColor
  * @returns {DifferenceInfo | null} `DifferenceInfo` object. If its `difference` property
  * is higher than 500 then its `isGood` property is set to `true`.
  */
@@ -692,10 +662,6 @@ export function calcColorDifference(foregroundColor, backgroundColor) {
  * Target.R = ((1 - Source.A) * BGColor.R) + (Source.A * Source.R)
  * Target.G = ((1 - Source.A) * BGColor.G) + (Source.A * Source.G)
  * Target.B = ((1 - Source.A) * BGColor.B) + (Source.A * Source.B)
- *
- * @param {ImageData} imageData
- * @param {WebColor | string} backgroundColor
- * @returns {[red: number, green: number, blue: number] | null}
  */
 export function calcAverageColorFromImageData(imageData, backgroundColor) {
   if (!imageData) return null;
@@ -713,10 +679,10 @@ export function calcAverageColorFromImageData(imageData, backgroundColor) {
   const pixelsCount = length / 4;
 
   for (let i = 0; i < length; i += 4) {
-    r += imageData.data[i];
-    g += imageData.data[i + 1];
-    b += imageData.data[i + 2];
-    a += imageData.data[i + 3] / 255;
+    r += imageData?.data?.[i] ?? 0;
+    g += imageData?.data?.[i + 1] ?? 0;
+    b += imageData?.data?.[i + 2] ?? 0;
+    a += (imageData?.data?.[i + 3] ?? 0) / 255;
   }
 
   r = Math.floor(r / (pixelsCount / 8));

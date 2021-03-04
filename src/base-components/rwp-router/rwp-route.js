@@ -1,65 +1,49 @@
-import { fetchTemplate, initCustomElement } from '../../../core/core.js';
-import RWPRouter from '../rwp-router.js';
+import { CustomElement, fetchTemplate } from '../../core/core.js';
 
-class RWPRoute extends HTMLElement {
-  /** @readonly */
+
+export class RWPRoute extends CustomElement {
   static WORD_REG_EXP_STRING = '[\\w0-9-_]+';
 
-  /** @readonly */
   static PARAMS_REG_EXP = new RegExp(
     `(?<=/:)(${RWPRoute.WORD_REG_EXP_STRING})(?=/)?`, 'g'
   );
 
-  /** @type {boolean} */
   _default;
-
-  /** @type {Path} */
   _path;
-
-  /** @type {RWPRouter} */
   _router;
-
-  /** @type {string} */
   _viewsPath;
-
-  /** @type {string} */
   _viewPath;
-
-  /** @type {DocumentFragment} */
   _view;
-
-  /** @type {HTMLSlotElement} */
   _root;
 
   constructor() {
-    super();
+    super('<template><slot name="content"></slot></template');
 
-    initCustomElement(this).then(async () => {
-      this._root = this.shadowRoot.querySelector('slot');
-      this._router = this.parentElement;
+    this._root = this.shadowRoot?.querySelector('slot');
+    this._router = this.parentElement;
 
-      if (this._router.nodeName.toLowerCase() !== 'rwp-router')
-        throw Error('Route must be inside router element!');
+    if (this._router.nodeName.toLowerCase() !== 'rwp-router')
+      throw Error('Route must be inside router element!');
 
-      const ambiguous = this.hasAttribute('ambiguous');
-      this._default = this.hasAttribute('default');
+    const ambiguous = this.hasAttribute('ambiguous');
+    this._default = this.hasAttribute('default');
 
-      this._path = RWPRoute.parsePath(this.getAttribute('path'), ambiguous, this._default);
-      this._view = await this.getView();
+    this._path = RWPRoute.parsePath(this.getAttribute('path'), ambiguous, this._default);
 
-      this._router.addRoute(this);
+    this.getView().then(view => {
+      this._view = view;
+      this._router?.addRoute(this);
     });
   }
 
-  /** @returns {Promise<DocumentFragment>} */
   async getView() {
     const viewPathAttr = this.getAttribute('view');
 
-    if (!viewPathAttr && !this._root.assignedElements().length > 0)
+    if (!this._default && !viewPathAttr && (this._root?.assignedElements().length ?? 0) === 0)
       throw Error('Route must include view attribute or child elements!');
 
     if (viewPathAttr) {
-      this._viewsPath = this._router.getAttribute('views-path');
+      this._viewsPath = this._router?.getAttribute('views-path') ;
 
       if (this._viewsPath) {
         this._viewPath = `${this._viewsPath.trim()}${
@@ -74,7 +58,7 @@ class RWPRoute extends HTMLElement {
 
     const fragment = new DocumentFragment();
 
-    this._root.assignedElements().forEach(element => {
+    this._root?.assignedElements().forEach(element => {
       fragment.appendChild(element.cloneNode(true));
       element.remove();
     });
@@ -82,7 +66,8 @@ class RWPRoute extends HTMLElement {
     const fragmentStyle = document.createElement('style');
 
     document.head.querySelectorAll('link[rel="stylesheet"]').forEach(link => {
-      fragmentStyle.innerHTML = `${fragmentStyle.innerHTML}@import '${link.href}';\n`;
+      fragmentStyle.innerHTML =
+        `${fragmentStyle.innerHTML}@import '${link.href}';\n`;
     });
 
     fragment.appendChild(fragmentStyle);
@@ -103,11 +88,11 @@ class RWPRoute extends HTMLElement {
 
   setViewParams() {
     const currentParams = location.pathname.match(this._path.regex);
-    const pathnameSlot = this._view.querySelector('slot[name="pathname"]');
+    const pathnameSlot = this._view?.querySelector('slot[name="pathname"]');
 
     if (currentParams) {
-      this._path.params.forEach((param, index) => {
-        const slot = this._view.querySelector(`slot[name="${param}"]`);
+      this._path.params?.forEach((param, index) => {
+        const slot = this._view?.querySelector(`slot[name="${param}"]`);
 
         if (slot)
           slot.textContent = currentParams[index + 1];
@@ -120,11 +105,11 @@ class RWPRoute extends HTMLElement {
 
   setRootContent() {
     this.setViewParams();
-    this._root.appendChild(this._view.cloneNode(true));
+    this._root?.appendChild(this._view?.cloneNode(true));
   }
 
   clearRootContent() {
-    this._root.innerHTML = '';
+    if (this._root) this._root.innerHTML = '';
   }
 
   get default() {
@@ -143,21 +128,8 @@ class RWPRoute extends HTMLElement {
     return ['current'];
   }
 
-  /**
-   * @typedef {object} Path
-   * @property {string} href Original path string.
-   * @property {RegExp} regex Regular expression that matches the path.
-   * @property {string[]} params Array of path parameters.
-   */
 
-  /**
-   * @param {string} path
-   * @param {boolean} ambiguous
-   * @param {boolean} isDefault
-   * @returns {Path}
-   */
   static parsePath(path, ambiguous, isDefault) {
-
     if (isDefault) {
       return {
         href: null,
@@ -205,13 +177,7 @@ class RWPRoute extends HTMLElement {
     };
   }
 
-  /**
-   * @param {string} path
-   * @returns {boolean}
-   */
   static includesLeadingSlash(path) {
     return path.charAt(path.length - 1) === '/';
   }
 }
-
-export default RWPRoute;

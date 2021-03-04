@@ -7,10 +7,9 @@
   <link
     href="https://fonts.googleapis.com/css2?family=Inconsolata:wght@400;500;600;700&family=Mulish:ital,wght@0,400;0,600;0,800;0,900;1,400;1,600;1,800;1,900&display=swap"
     rel="stylesheet">
-  <link rel="stylesheet" href="/src/main.css">
-  <script src="/src/main.js" type="module"></script>
+  <link rel="stylesheet" href="./styles/main.css">
+  <script src="./main.js" type="module"></script>
 </head>
-
 <body dir="ltr">
   <rwp-nav>
     <rwp-profile class="no-padding" slot="before-links"></rwp-profile>
@@ -25,7 +24,7 @@
   </rwp-nav>
   <rwp-breadcrumbs></rwp-breadcrumbs>`
   <main>
-    <rwp-router views-path="/src/views">
+    <rwp-router views-path="/views">
       <rwp-route default>
         <div slot="content">
           <p>Some text</p>
@@ -39,7 +38,7 @@
       <rwp-route path="/test/:id" view="test-dynamic.html"></rwp-route>
       <rwp-route path="/test/:id/:name/:surname" view="test-params.html"></rwp-route>
     </rwp-router>
+    <rwp-button bg-color="navy">Navy button</rwp-button>
   </main>
 </body>
-
 </html>
